@@ -1,6 +1,6 @@
 ![logo](astrologo.png)
 
-Astro Composer is a web-based planetary system design tool. Unlike a physics simulator, orbits are defined parametrically and are immune to perturbations. This ensures stability and consistency, however, orbits may not be stable on a real environment.
+[Astro Composer](https://mtirado1.github.io/astrocomposer) is a web-based planetary system design tool. Unlike a physics simulator, orbits are defined parametrically and are immune to perturbations. This ensures stability and consistency, however, orbits may not be stable on a real environment.
 
 ## Features
 
