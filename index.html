@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+<meta name="description" content="A tool for designing planetary systems"/>
+<title>Astro Composer</title>
+<link rel="stylesheet" type="text/css" href="style.css"/>
+</head>
+<body>
+
+<div id="viewer">
+	<h1 class="title">Astro Composer</h1>
+	<center>
+	<canvas id="system-canvas" width="800" height="400">
+	Canvas not suported by your browser
+	</canvas>
+	</center>
+	<hr/>
+	<p>
+	<input type="checkbox" id="show-label" name="showLabel" checked><label for="show-label"> Show titles</label> <input type="checkbox" id="show-axis" name="showAxis"><label for="show-axis"> Show axis</label> <input type="checkbox" id="show-grid" name="showGrid"><label for="show-grid"> Show grid</label> <input type="checkbox" id="show-orbit" name="showOrbit" checked><label for="show-orbit"> Show orbits</label>
+	</p>
+	<p>
+	<input type="range" min="0" max="100" value="10" class="slider" id="speed"> <span id="speed-indicator">Speed:</span> <select class="time-unit" id="select-speed"></select>/s
+	<button id="reset-time">Reset Time</button>
+	</p>
+	<label for="focus">Focus on:</label> <select id="focus"></select>
+	<p>Click and drag to rotate camera. Scroll to zoom.</p>
+</div>
+
+<div class="editor">
+<h1>Editor</h1>
+<p><input type="file" id="load-file" accept=".json"><button id="save-file">Save File</button></p>
+<label for="edit-select">Edit body:</label> <select id="edit-select"></select>
+<button id="delete-body">Delete</button>
+<button id="create-body">Create Body</button>
+<h3>Labeling</h3>
+<p>Name: <input class="edit" type="text" id="edit-name"></p>
+<p>Parent: <select class="edit" id="edit-parent"></select></p>
+<p>Color: <input class="edit"  type="color" id="edit-color" value="#ff0000"></p>
+<p>Label radius <input class="edit" type="number" id="edit-point" min="0" max="10" step="0.5"></p>
+<h3>Physical Properties</h3>
+<p>Body radius <input class="edit" type="number" id="edit-size" min="0" step="any"> <select class="edit dist-unit" id="edit-size-unit"></select></p>
+<p>Axial tilt: <input class="edit" type="number" id="edit-tilt" min="0" max="180" step=0.01></p>
+<p>Rotation period <input class="edit" type="number" id="edit-rotation" step="any"> <select class="edit time-unit" id="edit-rotation-unit"></select></p>
+<h3>Orbital Elements</h3>
+<p>Semi major axis <input class="edit" type="number" id="edit-a" min="0" step="any"> <select class="edit dist-unit" id="edit-a-unit"></select></p>
+<p>Orbital period <input class="edit" type="number" id="edit-T" step="any"> <select class="edit time-unit" id="edit-T-unit"></select></p>
+<p>Eccentricity <input class="edit" type="number" id="edit-e" min="0" max="0.9999" step="any"></p>
+<p>Mean anomaly <input class="edit" type="number" id="edit-ma" min="0" max="360" step=0.01></p>
+<p>Argument of periapsis <input class="edit" type="number" id="edit-ape" min="0" max="360" step=0.01></p>
+<p>Inclination <input class="edit" type="number" id="edit-inc" min="0" max="180" step=0.01></p>
+<p>Longitude of the ascending node <input class="edit" type="number" id="edit-lan" min="0" max="360" step=0.01></p>
+</div>
+<script src="planets.js"></script>
+<script src="system.js"></script>
+<script src="editor.js"></script>
+</body>
+</html>

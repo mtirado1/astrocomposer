@@ -1,0 +1,85 @@
+h1, h2, h3 {
+	font-weight: normal;
+	color: #eeeeee;
+	border-bottom: 1px solid #eeeeee;
+}
+
+body {
+	width: 95%;
+	margin: auto;
+	font-family: sans-serif;
+	color: #dddddd;
+	background-color: #1b1b1b;
+}
+
+#viewer {
+	display: inline-block;
+	width: 70%;
+	margin: 0;
+	float: left;
+}
+
+#system-canvas {
+	background-color: #080808;
+}
+
+.editor {
+	display: inline-block;
+	width: 25%;
+	margin: 0;
+	float: left;
+}
+
+input[type=number] {
+	width: 20%;
+	color: #eeeeee;
+	background-color: #444444;
+	border: none;
+	font-family: monospace;
+	font-size: 18px;
+	box-sizing: border-box;
+}
+
+input[type=text] {
+	width: 40%;
+	color: #eeeeee;
+	background-color: #444444;
+	border: none;
+	font-family: monospace;
+	font-size: 18px;
+	box-sizing: border-box;
+}
+
+input[type=color] {
+	width: 20%;
+	background-color: #444444;
+	border: none;
+	font-family: monospace;
+	font-size: 18px;
+}
+select {
+	width: 20%;
+	color: #eeeeee;
+	background-color: #444444;
+	border: none;
+	font-size: 18px;
+}
+
+button  {
+	width: 20%;
+	color: #eeeeee;
+	background-color: #444444;
+	border: none;
+	font-size: 14px;
+	padding: 5px;
+	margin: 2px;
+}
+
+input[type=range] {
+	width: 20%;
+}
+button:active {
+	background-color: #555555;
+}
+
+
