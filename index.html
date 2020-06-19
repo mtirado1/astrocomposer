@@ -41,18 +41,18 @@
 <p><span class="label">Label radius</span><input class="edit" type="number" id="edit-point" min="0" max="10" step="0.5"></p>
 
 <h3>Physical Properties</h3>
-<p><span class="label">Body radius</span><input class="edit" type="number" id="edit-size" min="0" step="any"> <select class="edit dist-unit" id="edit-size-unit"></select></p>
-<p><span class="label">Axial tilt</span><input class="edit" type="number" id="edit-tilt" min="0" max="180" step=0.01></p>
-<p><span class="label">Rotation period</span><input class="edit" type="number" id="edit-rotation" step="any"> <select class="edit time-unit" id="edit-rotation-unit"></select></p>
+<p><span class="label">Body radius</span><input class="edit log" type="number" id="edit-size" min="0" step="any"> <select class="edit dist-unit" id="edit-size-unit"></select> <button class="dec-button" for="edit-size">-</button><button class="inc-button" for="edit-size">+</button></p>
+<p><span class="label">Axial tilt</span><input class="edit angle" type="number" id="edit-tilt" min="0" max="180" step="0.01"> <button class="dec-button" for="edit-tilt">-</button><button class="inc-button" for="edit-tilt">+</button></p>
+<p><span class="label">Rotation period</span><input class="edit log" type="number" id="edit-rotation" step="any" min="0"> <select class="edit time-unit" id="edit-rotation-unit"></select> <button class="dec-button" for="edit-rotation">-</button><button class="inc-button" for="edit-rotation">+</button></p>
 
 <h3>Orbital Elements</h3>
-<p><span class="label">Semi major axis</span><input class="edit" type="number" id="edit-a" min="0" step="any"> <select class="edit dist-unit" id="edit-a-unit"></select></p>
-<p><span class="label">Orbital period</span><input class="edit" type="number" id="edit-T" step="any"> <select class="edit time-unit" id="edit-T-unit"></select></p>
-<p><span class="label">Eccentricity</span><input class="edit" type="number" id="edit-e" min="0" max="0.9999" step="any"></p>
-<p><span class="label">Mean anomaly</span><input class="edit" type="number" id="edit-ma" min="0" max="360" step=0.01> deg</p>
-<p><span class="label">Argument of periapsis</span><input class="edit" type="number" id="edit-ape" min="0" max="360" step=0.01> deg</p>
-<p><span class="label">Inclination</span><input class="edit angle" type="number" id="edit-inc" min="0" max="180" step=0.01> deg</p>
-<p><span class="label">Longitude of the ascending node</span><input class="edit" type="number" id="edit-lan" min="0" max="360" step=0.01> deg</p>
+<p><span class="label">Semi major axis</span><input class="edit log" type="number" id="edit-a" min="0" step="any"> <select class="edit dist-unit" id="edit-a-unit"></select> <button class="dec-button" for="edit-a">-</button><button class="inc-button" for="edit-a">+</button></p>
+<p><span class="label">Orbital period</span><input class="edit log" type="number" id="edit-T" step="any"> <select class="edit time-unit" id="edit-T-unit"></select> <button class="dec-button" for="edit-T">-</button><button class="inc-button" for="edit-T">+</button></p>
+<p><span class="label">Eccentricity</span><input class="edit" type="number" id="edit-e" min="0" max="0.99" step="0.01"> <button class="dec-button" for="edit-e">-</button><button class="inc-button" for="edit-e">+</button></p>
+<p><span class="label">Mean anomaly</span><input class="edit angle" type="number" id="edit-ma" min="0" max="360" step=0.01> deg <button class="dec-button" for="edit-ma">-</button><button class="inc-button" for="edit-ma">+</button></p>
+<p><span class="label">Argument of periapsis</span><input class="edit angle" type="number" id="edit-ape" min="0" max="360" step=0.01> deg <button class="dec-button" for="edit-ape">-</button><button class="inc-button" for="edit-ape">+</button></p>
+<p><span class="label">Inclination</span><input class="edit angle" type="number" id="edit-inc" min="0" max="180" step=0.01> deg <button class="dec-button" for="edit-inc">-</button><button class="inc-button" for="edit-inc">+</button></p>
+<p><span class="label">Longitude of the ascending node</span><input class="edit angle" type="number" id="edit-lan" min="0" max="360" step=0.01> deg <button class="dec-button" for="edit-lan">-</button><button class="inc-button" for="edit-lan">+</button></p>
 </div>
 <script src="planets.js"></script>
 <script src="system.js"></script>

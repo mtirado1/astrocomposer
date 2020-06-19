@@ -3,6 +3,47 @@ for(var i = 0; i < parameters.length; i++) {
 	parameters[i].addEventListener("change", updateParameters, false);
 }
 
+var incButtons = document.getElementsByClassName("inc-button");
+var decButtons = document.getElementsByClassName("dec-button");
+
+for(var i = 0; i < incButtons.length; i++) {
+	incButtons[i].addEventListener("click", incValue, false);
+	decButtons[i].addEventListener("click", decValue, false);
+}
+
+function incValue(e) {
+	var box = document.getElementById(e.target.getAttribute("for"));
+	if(box.classList.contains("log")) {
+		box.value = (box.value * 1.2).toFixed(6);
+	}
+	else if(box.classList.contains("angle")) {
+		box.value++;
+	}
+	else {
+		box.value = parseFloat(box.value) + parseFloat(box.step);
+	}
+	if(box.hasAttribute("max")) {
+		if(parseFloat(box.value) > parseFloat(box.max)) box.value = box.max;
+	}
+	updateParameters();
+}
+
+function decValue(e) {
+	var box = document.getElementById(e.target.getAttribute("for"));
+	if(box.classList.contains("log")) {
+		box.value = (box.value / 1.2).toFixed(6);
+	}
+	else if(box.classList.contains("angle")){
+		box.value--;
+	}
+	else {
+		box.value = parseFloat(box.value) - parseFloat(box.step);
+	}
+	if(box.hasAttribute("min")) {
+		if(parseFloat(box.value) < parseFloat(box.min)) box.value = box.min;
+	}
+	updateParameters();
+}
 
 
 document.getElementById("edit-select").addEventListener("change", populateParameters, false);

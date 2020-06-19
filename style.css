@@ -44,6 +44,13 @@ input[type=number] {
 	font-family: monospace;
 	font-size: 18px;
 	box-sizing: border-box;
+  	-moz-appearance: textfield;
+}
+
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
 }
 
 input[type=text] {
@@ -87,6 +94,13 @@ button  {
 	font-size: 14px;
 	padding: 0 5px 0 5px;
 	margin: 0 2px 0 2px;
+}
+
+.inc-button, .dec-button {
+	width: 5%;
+	background-color: #209ab7;
+	font-family: monospace;
+	font-size: 18px;
 }
 
 input[type=range] {
