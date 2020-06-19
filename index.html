@@ -35,22 +35,24 @@
 <button id="delete-body">Delete</button>
 <button id="create-body">Create Body</button>
 <h3>Labeling</h3>
-<p>Name: <input class="edit" type="text" id="edit-name"></p>
-<p>Parent: <select class="edit" id="edit-parent"></select></p>
-<p>Color: <input class="edit"  type="color" id="edit-color" value="#ff0000"></p>
-<p>Label radius <input class="edit" type="number" id="edit-point" min="0" max="10" step="0.5"></p>
+<p><span class="label">Name</span><input class="edit" type="text" id="edit-name"></p>
+<p><span class="label">Parent</span><select class="edit" id="edit-parent"></select></p>
+<p><span class="label">Color</span><input class="edit"  type="color" id="edit-color" value="#ff0000"></p>
+<p><span class="label">Label radius</span><input class="edit" type="number" id="edit-point" min="0" max="10" step="0.5"></p>
+
 <h3>Physical Properties</h3>
-<p>Body radius <input class="edit" type="number" id="edit-size" min="0" step="any"> <select class="edit dist-unit" id="edit-size-unit"></select></p>
-<p>Axial tilt: <input class="edit" type="number" id="edit-tilt" min="0" max="180" step=0.01></p>
-<p>Rotation period <input class="edit" type="number" id="edit-rotation" step="any"> <select class="edit time-unit" id="edit-rotation-unit"></select></p>
+<p><span class="label">Body radius</span><input class="edit" type="number" id="edit-size" min="0" step="any"> <select class="edit dist-unit" id="edit-size-unit"></select></p>
+<p><span class="label">Axial tilt</span><input class="edit" type="number" id="edit-tilt" min="0" max="180" step=0.01></p>
+<p><span class="label">Rotation period</span><input class="edit" type="number" id="edit-rotation" step="any"> <select class="edit time-unit" id="edit-rotation-unit"></select></p>
+
 <h3>Orbital Elements</h3>
-<p>Semi major axis <input class="edit" type="number" id="edit-a" min="0" step="any"> <select class="edit dist-unit" id="edit-a-unit"></select></p>
-<p>Orbital period <input class="edit" type="number" id="edit-T" step="any"> <select class="edit time-unit" id="edit-T-unit"></select></p>
-<p>Eccentricity <input class="edit" type="number" id="edit-e" min="0" max="0.9999" step="any"></p>
-<p>Mean anomaly <input class="edit" type="number" id="edit-ma" min="0" max="360" step=0.01></p>
-<p>Argument of periapsis <input class="edit" type="number" id="edit-ape" min="0" max="360" step=0.01></p>
-<p>Inclination <input class="edit" type="number" id="edit-inc" min="0" max="180" step=0.01></p>
-<p>Longitude of the ascending node <input class="edit" type="number" id="edit-lan" min="0" max="360" step=0.01></p>
+<p><span class="label">Semi major axis</span><input class="edit" type="number" id="edit-a" min="0" step="any"> <select class="edit dist-unit" id="edit-a-unit"></select></p>
+<p><span class="label">Orbital period</span><input class="edit" type="number" id="edit-T" step="any"> <select class="edit time-unit" id="edit-T-unit"></select></p>
+<p><span class="label">Eccentricity</span><input class="edit" type="number" id="edit-e" min="0" max="0.9999" step="any"></p>
+<p><span class="label">Mean anomaly</span><input class="edit" type="number" id="edit-ma" min="0" max="360" step=0.01> deg</p>
+<p><span class="label">Argument of periapsis</span><input class="edit" type="number" id="edit-ape" min="0" max="360" step=0.01> deg</p>
+<p><span class="label">Inclination</span><input class="edit angle" type="number" id="edit-inc" min="0" max="180" step=0.01> deg</p>
+<p><span class="label">Longitude of the ascending node</span><input class="edit" type="number" id="edit-lan" min="0" max="360" step=0.01> deg</p>
 </div>
 <script src="planets.js"></script>
 <script src="system.js"></script>

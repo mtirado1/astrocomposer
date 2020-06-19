@@ -1,15 +1,19 @@
 h1, h2, h3 {
 	font-weight: normal;
-	color: #eeeeee;
+	color: #209ab7;
 	border-bottom: 1px solid #eeeeee;
 }
 
 body {
 	width: 95%;
 	margin: auto;
-	font-family: sans-serif;
+	font-family: 'Arial', sans-serif;
 	color: #dddddd;
 	background-color: #1b1b1b;
+}
+
+p {
+	margin: 10px;
 }
 
 #viewer {
@@ -25,13 +29,15 @@ body {
 
 .editor {
 	display: inline-block;
-	width: 25%;
+	padding-left: 2%;
+	width: 28%;
 	margin: 0;
 	float: left;
 }
 
 input[type=number] {
-	width: 20%;
+	height: 30px;
+	width: 25%;
 	color: #eeeeee;
 	background-color: #444444;
 	border: none;
@@ -50,6 +56,12 @@ input[type=text] {
 	box-sizing: border-box;
 }
 
+.label {
+	display: inline-block;
+	width: 30%;
+	margin-right: 2%;
+}
+
 input[type=color] {
 	width: 20%;
 	background-color: #444444;
@@ -58,6 +70,7 @@ input[type=color] {
 	font-size: 18px;
 }
 select {
+	height: 30px;
 	width: 20%;
 	color: #eeeeee;
 	background-color: #444444;
@@ -66,13 +79,14 @@ select {
 }
 
 button  {
+	height: 30px;
 	width: 20%;
 	color: #eeeeee;
 	background-color: #444444;
 	border: none;
 	font-size: 14px;
-	padding: 5px;
-	margin: 2px;
+	padding: 0 5px 0 5px;
+	margin: 0 2px 0 2px;
 }
 
 input[type=range] {
@@ -82,4 +96,14 @@ button:active {
 	background-color: #555555;
 }
 
+.time-unit, .dist-unit {
+	width: 15%;
+}
 
+a:link, a:visited, a:active {
+	color: #00bad7;
+}
+
+a:hover {
+	color: #4effee;
+}
