@@ -1,12 +1,21 @@
 var timeUnits = {
-	y: 1,
-	d: 0.002737,
-	h: 0.000114
+	y: 31536000,
+	d: 86400,
+	h: 3600,
+	s: 1
 };
 
 var distanceUnits = {
-	AU: 1,
-	km: 6.684587e-9
+	AU: 149597870700,
+	km: 1000,
+	m: 1
+}
+
+var massUnits = {
+	kg: 1,
+	earth: 5.9722e24,
+	jupiter: 1.8981e27,
+	sol: 1.9885e30
 }
 
 var planets = {

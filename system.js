@@ -113,7 +113,7 @@ function orbit() {
 	var angleZ = intX * Math.PI/180;
 	var cameraAxis = "zx";
 	var cameraAngles = [angleZ, angleX];
-	var w = 50 * zoom;
+	var w = 50 * zoom / distanceUnits.AU;
 	var focusX = 0;
 	var focusY = 0;
 
@@ -179,12 +179,12 @@ function orbit() {
 		plotPlanet(ctx, planets[p], [focusX + planets[p].reference[0], focusY + planets[p].reference[1]], cameraAxis, cameraAngles, w, epoch, c);	
 	}
 
+	var selectedTimeUnit = speeds[document.getElementById("select-speed").selectedIndex]
+	var selectedSpeed = timeUnits[selectedTimeUnit];
 	ctx.setTransform(1,0,0,1,0,0);
 	ctx.fillStyle = orbitColor;
-	ctx.fillText("Time: " + epoch.toFixed(1) + " U", 5, c.height - 30);
-	ctx.fillText("Scale: 1px = " + (1000/w).toFixed(3) + " mU", 5, c.height - 15);
-	
-	var selectedSpeed = timeUnits[speeds[document.getElementById("select-speed").selectedIndex]];
+	ctx.fillText("Time: " + (epoch/selectedSpeed).toFixed(1) + " " + selectedTimeUnit, 5, c.height - 30);
+	ctx.fillText("Scale: 100px = " + (100/(w*distanceUnits.AU)).toFixed(3) + " AU", 5, c.height - 15);
 	epoch += (1/60) * document.getElementById("speed").value / 20 * selectedSpeed;
 	document.getElementById("speed-indicator").innerHTML = "Speed: " + (document.getElementById("speed").value / 20).toFixed(2);
 	requestAnimationFrame(orbit);
