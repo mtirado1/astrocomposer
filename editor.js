@@ -148,6 +148,13 @@ function deleteBody() {
 	planetList = Object.keys(planets);
 }
 
+function convertUnits(units, value, to) {
+	var c = parseFloat(value);
+	var from = value.split(" ")[1];
+	c = c * units[from] / units[to];
+	return c.toString() + " " + to;
+}
+
 function updateParameters() {
 	var index = document.getElementById("edit-select").selectedIndex;
 	var body = planets[planetList[index]];
@@ -156,12 +163,33 @@ function updateParameters() {
 	document.getElementById("edit-select").options[index].text = body.name;
 	document.getElementById("edit-parent").options[index].text = body.name;
 	document.getElementById("focus").options[index+1].text = body.name;
-	body.orbitRadius = document.getElementById("edit-a").value.toString() + " " + distances[document.getElementById("edit-a-unit").selectedIndex];
+	
+	var editA = document.getElementById("edit-a");
+	var editAUnit = document.getElementById("edit-a-unit");
+	body.orbitRadius = convertUnits(distanceUnits, editA.value.toString() + " " + body.orbitRadius.split(" ")[1], distances[editAUnit.selectedIndex]);
+	editA.value = parseFloat(body.orbitRadius);
+	
+	var editT = document.getElementById("edit-T");
+	var editTUnit = document.getElementById("edit-T-unit");
+	body.period = convertUnits(timeUnits, editT.value.toString() + " " + body.period.split(" ")[1], speeds[editTUnit.selectedIndex]);
+	editT.value = parseFloat(body.period);
+
+	var editRotation = document.getElementById("edit-rotation");
+	var editRotationUnit = document.getElementById("edit-rotation-unit");
+	body.rotationPeriod = convertUnits(timeUnits, editRotation.value.toString() + " " + body.rotationPeriod.split(" ")[1], speeds[editRotationUnit.selectedIndex]);
+	editRotation.value = parseFloat(body.rotationPeriod);
+
+	var editSize = document.getElementById("edit-size");
+	var editSizeUnit = document.getElementById("edit-size-unit");
+	body.trueRadius = convertUnits(distanceUnits, editSize.value.toString() + " " + body.trueRadius.split(" ")[1], distances[editSizeUnit.selectedIndex]);
+	editSize.value = parseFloat(body.trueRadius);	
+	
+	var editMass = document.getElementById("edit-mass");
+	var editMassUnit = document.getElementById("edit-mass-unit");
+	body.mass = convertUnits(massUnits, editMass.value.toString() + " " + body.mass.split(" ")[1], masses[editMassUnit.selectedIndex]);
+	editMass.value = parseFloat(body.mass);	
+	
 	body.color = document.getElementById("edit-color").value;
-	body.period = document.getElementById("edit-T").value.toString() + " " + speeds[document.getElementById("edit-T-unit").selectedIndex];
-	body.rotationPeriod = document.getElementById("edit-rotation").value.toString() + " " + speeds[document.getElementById("edit-rotation-unit").selectedIndex];
-	body.trueRadius = document.getElementById("edit-size").value.toString() + " " + distances[document.getElementById("edit-size-unit").selectedIndex];
-	body.mass = document.getElementById("edit-mass").value.toString() + " " + masses[document.getElementById("edit-mass-unit").selectedIndex];
 	body.radius = document.getElementById("edit-point").value;
 	body.e = document.getElementById("edit-e").value;
 	body.axialTilt = document.getElementById("edit-tilt").value * Math.PI/180;
@@ -361,7 +389,7 @@ function saveFile() {
 		delete pack.planets[p].coords;
 		delete pack.planets[p].reference;
 	}
-	var blob = new Blob([JSON.stringify(pack)], {type: "text/plain;charset=utf-8"});
+	var blob = new Blob([JSON.stringify(pack, null, 2)], {type: "text/plain;charset=utf-8"});
 
 	var link = document.createElement("a");
 	link.download = "system.json";

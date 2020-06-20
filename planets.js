@@ -26,6 +26,7 @@ var planets = {
 		trueRadius: "695700 km",
 		mass: "1 sol",
 		rotationPeriod: "25.05 d",
+		period: "1 y",
 		axialTilt: 0.1265,
 		color: "#ffee33",
 		inc: 0,
