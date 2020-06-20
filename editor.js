@@ -48,7 +48,11 @@ function decValue(e) {
 
 document.getElementById("edit-select").addEventListener("change", populateParameters, false);
 document.getElementById("delete-body").addEventListener("click", deleteBody, false);
+
 document.getElementById("create-body").addEventListener("click", createBody, false);
+document.getElementById("create-orbit").addEventListener("click", addBody, false);
+document.getElementById("create-center").addEventListener("click", addBody, false);
+
 document.getElementById("load-file").addEventListener("change", loadFile, false);
 document.getElementById("save-file").addEventListener("click", saveFile, false);
 
@@ -167,30 +171,100 @@ function updateParameters() {
 }
 
 function createBody() {
-	var newKey = prompt("Object key:", "planet");
-	if(newKey == null || newKey == "" || planets.hasOwnProperty(newKey)) return;
+	document.getElementById("type-selector").style.display = "block";
+}
 
-	var newBody = {};
-	newBody.name = newKey;
-	newBody.color = "#ff0000";
-	newBody.radius = 1;
-	newBody.trueRadius = "0 " + distances[0];
-	newBody.orbitRadius = "1 " + distances[0];
-	newBody.period = "1 " + speeds[0];
-	newBody.rotationPeriod = "1 " + speeds[0];
+const templates = [
+	{
+		name: "Sun",
+		orbitRadius: "0 AU",
+		radius: 3,
+		trueRadius: "695700 km",
+		rotationPeriod: "25.05 d",
+		axialTilt: 0.1265,
+		color: "#ffee33",
+		inc: 0,
+		ape: 0,
+		e: 0,
+		lan: 0
+	},
+	{
+		name: 'Jupiter',
+		orbitRadius: "5.204 AU",
+		radius: 3,
+		trueRadius: "69911 km",
+		axialTilt: 0.05462,
+		rotationPeriod: "9.925 h",
+		period: "11.862 y",
+		argument: 0.0556,
+		color: '#ff9900',
+		inc: 0.0227,
+		ape: 4.779,
+		e: 0.0489,
+		lan: 1.7534
+	},
+	{
+		name: 'Earth',
+		orbitRadius: "1 AU",
+		radius: 1,
+		trueRadius: "6371 km",
+		axialTilt: 0.409,
+		rotationPeriod: "1 d",
+		period: "1 y",
+		argument: 0.996,
+		color: '#0099ff',
+		inc: 0,
+		ape: 1.989,
+		e: 0.016,
+		lan: 6.086
+	},
+	{
+		name: "Moon",
+		color: "#cccccc",
+		radius: 0.5,
+		orbitRadius: "384400 km",
+		trueRadius: "1737.4 km",
+		axialTilt: 0.1167,
+		rotationPeriod: "27.321 d",
+		period: "27.321 d",
+		argument: 0,
+		inc: 0.08979,
+		ape: 0,
+		e: 0.0549,
+		lan: 0
+	}
+]
 
-	newBody.argument = 0;
-	newBody.e = 0;
-	newBody.argument = 0;
-	newBody.ape = 0;
-	newBody.inc = 0;
-	newBody.lan = 0;
+for(var t = 0; t < templates.length; t++) {
+	option = document.createElement("option");
+	option.text = templates[t].name;
+	document.getElementById("template-select").add(option);
+}
 
-	planets[newKey] = newBody;
-
+function addBody(e) {
+	document.getElementById("type-selector").style.display = "none";
+	var selectedTemplate = templates[document.getElementById("template-select").selectedIndex]
+	var newKey = prompt("Object ID:", selectedTemplate.name);
+	if(newKey == null || newKey == "" || planets.hasOwnProperty(newKey)) {
+		if(planets.hasOwnProperty(newKey)) {
+			alert("That key is already used by another object.");
+		}
+		return;
+	}
+	planets[newKey] = Object.assign({}, selectedTemplate);
+	planets[newKey].name = newKey;
+	if(e.target.id == "create-center") {
+		planets[newKey].orbitRadius = "0 AU";
+	}
+	var focus = document.getElementById("focus").selectedIndex - 1;
+	if(focus >= 0) {
+		planets[newKey].parent = planetList[focus];
+	}
+	else {
+		planets[newKey].parent = ""
+	}
 	sortedPlanets = Object.keys(planets);
 	planetList = Object.keys(planets);
-	
 	option = document.createElement("option");
 	option.text = newKey;
 	document.getElementById("edit-select").add(option);
@@ -205,6 +279,7 @@ function createBody() {
 	document.getElementById("edit-select").selectedIndex = planetList.length-1;
 	populateParameters();
 }
+
 
 function resetSystem() {
 	document.getElementById("focus").innerHTML = ""
