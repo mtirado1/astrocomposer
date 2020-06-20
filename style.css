@@ -110,7 +110,7 @@ button:active {
 	background-color: #555555;
 }
 
-.time-unit, .dist-unit {
+.time-unit, .dist-unit .mass-unit{
 	width: 15%;
 }
 

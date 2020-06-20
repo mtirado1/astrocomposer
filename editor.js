@@ -114,6 +114,15 @@ function populateParameters() {
 		document.getElementById("edit-size").value = 0;
 		document.getElementById("edit-size-unit").selectedIndex = 0;
 	}
+	
+	if(body.hasOwnProperty("mass")){
+		document.getElementById("edit-mass").value = parseFloat(body.mass);
+		document.getElementById("edit-mass-unit").selectedIndex = masses.indexOf(body.mass.split(" ")[1]);
+	}
+	else {
+		document.getElementById("edit-mass").value = 0;
+		document.getElementById("edit-mass-unit").selectedIndex = 0;
+	}	
 	document.getElementById("edit-point").value = body.radius;
 	document.getElementById("edit-e").value = body.e;
 	
@@ -152,6 +161,7 @@ function updateParameters() {
 	body.period = document.getElementById("edit-T").value.toString() + " " + speeds[document.getElementById("edit-T-unit").selectedIndex];
 	body.rotationPeriod = document.getElementById("edit-rotation").value.toString() + " " + speeds[document.getElementById("edit-rotation-unit").selectedIndex];
 	body.trueRadius = document.getElementById("edit-size").value.toString() + " " + distances[document.getElementById("edit-size-unit").selectedIndex];
+	body.mass = document.getElementById("edit-mass").value.toString() + " " + masses[document.getElementById("edit-mass-unit").selectedIndex];
 	body.radius = document.getElementById("edit-point").value;
 	body.e = document.getElementById("edit-e").value;
 	body.axialTilt = document.getElementById("edit-tilt").value * Math.PI/180;
@@ -180,6 +190,7 @@ const templates = [
 		orbitRadius: "0 AU",
 		radius: 3,
 		trueRadius: "695700 km",
+		mass: "1 sol",
 		rotationPeriod: "25.05 d",
 		axialTilt: 0.1265,
 		color: "#ffee33",
@@ -193,6 +204,7 @@ const templates = [
 		orbitRadius: "5.204 AU",
 		radius: 3,
 		trueRadius: "69911 km",
+		mass: "1 jupiter",
 		axialTilt: 0.05462,
 		rotationPeriod: "9.925 h",
 		period: "11.862 y",
@@ -208,6 +220,7 @@ const templates = [
 		orbitRadius: "1 AU",
 		radius: 1,
 		trueRadius: "6371 km",
+		mass: "1 earth",
 		axialTilt: 0.409,
 		rotationPeriod: "1 d",
 		period: "1 y",
@@ -224,6 +237,7 @@ const templates = [
 		radius: 0.5,
 		orbitRadius: "384400 km",
 		trueRadius: "1737.4 km",
+		mass: "0.0123 earth",
 		axialTilt: 0.1167,
 		rotationPeriod: "27.321 d",
 		period: "27.321 d",

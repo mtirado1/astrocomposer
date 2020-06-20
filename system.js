@@ -90,8 +90,10 @@ for(k in planets) {
 
 var speeds = Object.keys(timeUnits);
 var distances = Object.keys(distanceUnits);
+var masses = Object.keys(massUnits);
 var timeSelectors = document.getElementsByClassName("time-unit");
 var distSelectors = document.getElementsByClassName("dist-unit");
+var massSelectors = document.getElementsByClassName("mass-unit");
 for(var j = 0; j < timeSelectors.length; j++) {
 	for(var i = 0; i < speeds.length; i++) {
 		option = document.createElement("option");
@@ -105,6 +107,14 @@ for(var j = 0; j < distSelectors.length; j++) {
 		option = document.createElement("option");
 		option.text = distances[i];
 		distSelectors[j].add(option);
+	}
+}
+
+for(var j = 0; j < massSelectors.length; j++) {
+	for(var i = 0; i < masses.length; i++) {
+		option = document.createElement("option");
+		option.text = masses[i];
+		massSelectors[j].add(option);
 	}
 }
 
@@ -144,13 +154,14 @@ function orbit() {
 	if(document.getElementById("show-grid").checked) {
 		ctx.beginPath();
 		ctx.strokeStyle = "#303030";
+		var s = distanceUnits.AU;
 		for(var g = -10; g <= 10; g++) {
-			var from = applyMatrix(m, [g*w, -10*w, 0]);
-			var to   = applyMatrix(m, [g*w, 10*w, 0]);
+			var from = applyMatrix(m, [g*w*s, -10*w*s, 0]);
+			var to   = applyMatrix(m, [g*w*s, 10*w*s, 0]);
 			ctx.moveTo(focusX + from[0],  focusY + from[1]);
 			ctx.lineTo(focusX + to[0], focusY + to[1]);
-			from = applyMatrix(m, [-10*w, g*w, 0]);
-			to   = applyMatrix(m, [10*w, g*w, 0]);
+			from = applyMatrix(m, [-10*w*s, g*w*s, 0]);
+			to   = applyMatrix(m, [10*w*s, g*w*s, 0]);
 			ctx.moveTo(focusX + from[0], focusY + from[1]);
 			ctx.lineTo(focusX + to[0], focusY + to[1]);
 		}
