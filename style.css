@@ -76,6 +76,11 @@ input[type=color] {
 	font-family: monospace;
 	font-size: 18px;
 }
+
+input:disabled, select:disabled {
+	opacity: 0.5;
+}
+
 select {
 	height: 30px;
 	width: 20%;

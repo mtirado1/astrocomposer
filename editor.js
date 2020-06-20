@@ -11,6 +11,72 @@ for(var i = 0; i < incButtons.length; i++) {
 	decButtons[i].addEventListener("click", decValue, false);
 }
 
+
+document.getElementById("kepler-none").addEventListener("click", enableKepler, false);
+document.getElementById("kepler-period").addEventListener("click", enableKepler, false);
+document.getElementById("kepler-distance").addEventListener("click", enableKepler, false);
+
+document.getElementById("kepler-none").checked = true;
+document.getElementById("kepler-distance").checked = false;
+document.getElementById("kepler-period").checked = false;
+
+var kepler = "none";
+
+function getEditedBody() {
+	return planetList[document.getElementById("edit-select").selectedIndex];
+}
+
+function enableKepler(e) {
+	if(!e.target.checked) return;
+	document.getElementById("edit-T").disabled = false;
+	document.getElementById("edit-T-unit").disabled = false;
+	document.getElementById("edit-a").disabled = false;
+	document.getElementById("edit-a-unit").disabled = false;
+	kepler = e.target.value;
+	if(e.target.value == "none") return;
+	var p = getEditedBody();
+	if(planets[p].parent == "") {
+		alert("Body has no parent. Cannot keplerize.");
+		document.getElementById("kepler-none").checked = true;
+		document.getElementById("kepler-distance").checked = false;
+		document.getElementById("kepler-period").checked = false;
+		return;
+	}
+	if(!planets[planets[p].parent].hasOwnProperty("mass")) {
+		alert("Parent has now mass. Cannot keplerize.");
+		document.getElementById("kepler-none").checked = true;
+		document.getElementById("kepler-distance").checked = false;
+		document.getElementById("kepler-period").checked = false;
+		return;
+	}
+	keplerize(kepler);
+}
+
+function keplerize(type) {
+	if (type == "none") return;
+	var p = getEditedBody();
+	var parentMass = parseMass(planets[planets[p].parent].mass);
+	if (type == "distance") {
+		var period = parseTime(planets[p].period);
+		var newDistance = Math.cbrt((6.67e-11 * parentMass * period * period)/(4 * Math.PI * Math.PI));
+		planets[p].orbitRadius = newDistance.toString() + " m";
+		document.getElementById("edit-a").disabled = true;
+		document.getElementById("edit-a-unit").disabled = true;
+		document.getElementById("edit-a").value = newDistance;
+		document.getElementById("edit-a-unit").selectedIndex = distances.indexOf("m");
+	}
+	else if (type == "period") {
+		var distance = parseDistance(planets[p].orbitRadius);
+		var newPeriod = 2 * Math.PI * Math.sqrt( distance**3 / (parentMass * 6.67e-11))
+		planets[p].period = newPeriod.toString() + " s";
+		document.getElementById("edit-T").disabled = true;
+		document.getElementById("edit-T-unit").disabled = true;
+		document.getElementById("edit-T").value = newPeriod;
+		document.getElementById("edit-T-unit").selectedIndex = speeds.indexOf("s");
+
+	}
+}
+
 function incValue(e) {
 	var box = document.getElementById(e.target.getAttribute("for"));
 	if(box.classList.contains("log")) {
@@ -158,7 +224,7 @@ function convertUnits(units, value, to) {
 function updateParameters() {
 	var index = document.getElementById("edit-select").selectedIndex;
 	var body = planets[planetList[index]];
-
+	keplerize(kepler);
 	body.name = document.getElementById("edit-name").value;
 	document.getElementById("edit-select").options[index].text = body.name;
 	document.getElementById("edit-parent").options[index].text = body.name;
@@ -174,6 +240,9 @@ function updateParameters() {
 	body.period = convertUnits(timeUnits, editT.value.toString() + " " + body.period.split(" ")[1], speeds[editTUnit.selectedIndex]);
 	editT.value = parseFloat(body.period);
 
+	if(!body.hasOwnProperty("rotationPeriod")) body.rotationPeriod = "0 s";
+	if(!body.hasOwnProperty("trueRadius")) body.trueRadius = "0 m";
+	if(!body.hasOwnProperty("mass")) body.mass = "0 kg";
 	var editRotation = document.getElementById("edit-rotation");
 	var editRotationUnit = document.getElementById("edit-rotation-unit");
 	body.rotationPeriod = convertUnits(timeUnits, editRotation.value.toString() + " " + body.rotationPeriod.split(" ")[1], speeds[editRotationUnit.selectedIndex]);

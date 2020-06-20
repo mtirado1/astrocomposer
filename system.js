@@ -321,6 +321,10 @@ function parseTime(t) {
 	return parseFloat(t) * timeUnits[t.split(" ")[1]];
 }
 
+function parseMass(m) {
+	return parseFloat(m) * massUnits[m.split(" ")[1]];
+}
+
 // generates 3x3 rotation matrix for multiple rotations
 function generateMatrix(axis, angle) {
 	var ret = [[1, 0, 0], [0, 1, 0], [0, 0, 1]];
