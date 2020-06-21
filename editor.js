@@ -90,6 +90,7 @@ function incValue(e) {
 	}
 	else if(box.classList.contains("angle")) {
 		box.value++;
+		if(parseFloat(box.value) > parseFloat(box.max)) box.value = box.min;
 	}
 	else {
 		box.value = parseFloat(box.value) + parseFloat(box.step);
@@ -107,6 +108,7 @@ function decValue(e) {
 	}
 	else if(box.classList.contains("angle")){
 		box.value--;
+		if(parseFloat(box.value) < parseFloat(box.min)) box.value = box.max;
 	}
 	else {
 		box.value = parseFloat(box.value) - parseFloat(box.step);
