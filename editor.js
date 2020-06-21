@@ -22,31 +22,42 @@ document.getElementById("kepler-period").checked = false;
 
 var kepler = "none";
 
+var editA = document.getElementById("edit-a");
+var editAUnit = document.getElementById("edit-a-unit");
+var editT = document.getElementById("edit-T");
+var editTUnit = document.getElementById("edit-T-unit");
+var editRotation = document.getElementById("edit-rotation");
+var editRotationUnit = document.getElementById("edit-rotation-unit");
+var editSize = document.getElementById("edit-size");
+var editSizeUnit = document.getElementById("edit-size-unit");
+var editMass = document.getElementById("edit-mass");
+var editMassUnit = document.getElementById("edit-mass-unit");
+
 function getEditedBody() {
-	return planetList[document.getElementById("edit-select").selectedIndex];
+	return document.getElementById("edit-select").selectedIndex;
 }
 
 function enableKepler(e) {
 	if(!e.target.checked) return;
-	document.getElementById("edit-T").disabled = false;
-	document.getElementById("edit-T-unit").disabled = false;
-	document.getElementById("edit-a").disabled = false;
-	document.getElementById("edit-a-unit").disabled = false;
+	editT.disabled = false;
+	editA.disabled = false;
 	kepler = e.target.value;
 	if(e.target.value == "none") return;
-	var p = getEditedBody();
+	var p = planetList[getEditedBody()];
 	if(planets[p].parent == "") {
 		alert("Body has no parent. Cannot keplerize.");
 		document.getElementById("kepler-none").checked = true;
 		document.getElementById("kepler-distance").checked = false;
 		document.getElementById("kepler-period").checked = false;
+		kepler = "none";
 		return;
 	}
 	if(!planets[planets[p].parent].hasOwnProperty("mass")) {
-		alert("Parent has now mass. Cannot keplerize.");
+		alert("Parent has no mass. Cannot keplerize.");
 		document.getElementById("kepler-none").checked = true;
 		document.getElementById("kepler-distance").checked = false;
 		document.getElementById("kepler-period").checked = false;
+		kepler = "none";
 		return;
 	}
 	keplerize(kepler);
@@ -54,26 +65,21 @@ function enableKepler(e) {
 
 function keplerize(type) {
 	if (type == "none") return;
-	var p = getEditedBody();
+	var p = planetList[getEditedBody()];
 	var parentMass = parseMass(planets[planets[p].parent].mass);
 	if (type == "distance") {
 		var period = parseTime(planets[p].period);
 		var newDistance = Math.cbrt((6.67e-11 * parentMass * period * period)/(4 * Math.PI * Math.PI));
-		planets[p].orbitRadius = newDistance.toString() + " m";
-		document.getElementById("edit-a").disabled = true;
-		document.getElementById("edit-a-unit").disabled = true;
-		document.getElementById("edit-a").value = newDistance;
-		document.getElementById("edit-a-unit").selectedIndex = distances.indexOf("m");
+		planets[p].orbitRadius = convertUnits(distanceUnits, newDistance.toString() + " m", distances[editAUnit.selectedIndex]);
+		editA.disabled = true;
+		editA.value = planets[p].orbitRadius.split(" ")[0];
 	}
 	else if (type == "period") {
 		var distance = parseDistance(planets[p].orbitRadius);
-		var newPeriod = 2 * Math.PI * Math.sqrt( distance**3 / (parentMass * 6.67e-11))
-		planets[p].period = newPeriod.toString() + " s";
-		document.getElementById("edit-T").disabled = true;
-		document.getElementById("edit-T-unit").disabled = true;
-		document.getElementById("edit-T").value = newPeriod;
-		document.getElementById("edit-T-unit").selectedIndex = speeds.indexOf("s");
-
+		var newPeriod = 2 * Math.PI * Math.sqrt( distance**3 / (parentMass * 6.67e-11));
+		planets[p].period = convertUnits(timeUnits, newPeriod.toString() + " s", speeds[editTUnit.selectedIndex]);
+		editT.disabled = true;
+		editT.value = planets[p].period.split(" ")[0];
 	}
 }
 
@@ -134,64 +140,57 @@ for(k in planets) {
 populateParameters();
 
 function populateParameters() {
-	var index = document.getElementById("edit-select").selectedIndex;
+	var index = getEditedBody();
 	var body = planets[planetList[index]];
 
+	document.getElementById("edit-parent").selectedIndex = index;
 	if(body.hasOwnProperty("parent")) {
 		if(body.parent != "") {
 			document.getElementById("edit-parent").selectedIndex = planetList.indexOf(body.parent); 
 		}
-		else {
-			document.getElementById("edit-parent").selectedIndex = index;
-		}
 	}
-	else {
-		document.getElementById("edit-parent").selectedIndex = index; 
-	}
-	
 	document.getElementById("edit-name").value = body.name; 
-	document.getElementById("edit-a").value = parseFloat(body.orbitRadius);
 	document.getElementById("edit-color").value = body.color;
-	document.getElementById("edit-a-unit").selectedIndex = distances.indexOf(body.orbitRadius.split(" ")[1]);
+	editA.value = parseFloat(body.orbitRadius);
+	editAUnit.selectedIndex = distances.indexOf(body.orbitRadius.split(" ")[1]);
 	
 	if(body.hasOwnProperty("period")) {
-		document.getElementById("edit-T").value = parseFloat(body.period);
-		document.getElementById("edit-T-unit").selectedIndex = speeds.indexOf(body.period.split(" ")[1]);
+		editT.value = parseFloat(body.period);
+		editTUnit.selectedIndex = speeds.indexOf(body.period.split(" ")[1]);
 	}
 	else {
-		document.getElementById("edit-T").value = 1;
-		document.getElementById("edit-T-unit").selectedIndex = 0;
+		editT.value = 1;
+		editTUnit.selectedIndex = 0;
 	}
 
 	if(body.hasOwnProperty("rotationPeriod")) {
-		document.getElementById("edit-rotation").value = parseFloat(body.rotationPeriod);
-		document.getElementById("edit-rotation-unit").selectedIndex = speeds.indexOf(body.rotationPeriod.split(" ")[1]);
+		editRotation.value = parseFloat(body.rotationPeriod);
+		editRotationUnit.selectedIndex = speeds.indexOf(body.rotationPeriod.split(" ")[1]);
 	}
 	else {
-		document.getElementById("edit-rotation").value = 1;
-		document.getElementById("edit-rotation-unit").selectedIndex = 0;
+		editRotation.value = 1;
+		editRotationUnit.selectedIndex = 0;
 	}
 
 	if(body.hasOwnProperty("trueRadius")){
-		document.getElementById("edit-size").value = parseFloat(body.trueRadius);
-		document.getElementById("edit-size-unit").selectedIndex = distances.indexOf(body.trueRadius.split(" ")[1]);
+		editSize.value = parseFloat(body.trueRadius);
+		editSizeUnit.selectedIndex = distances.indexOf(body.trueRadius.split(" ")[1]);
 	}
 	else {
-		document.getElementById("edit-size").value = 0;
-		document.getElementById("edit-size-unit").selectedIndex = 0;
+		editSize.value = 0;
+		editSizeUnit.selectedIndex = 0;
 	}
 	
 	if(body.hasOwnProperty("mass")){
-		document.getElementById("edit-mass").value = parseFloat(body.mass);
-		document.getElementById("edit-mass-unit").selectedIndex = masses.indexOf(body.mass.split(" ")[1]);
+		editMass.value = parseFloat(body.mass);
+		editMassUnit.selectedIndex = masses.indexOf(body.mass.split(" ")[1]);
 	}
 	else {
-		document.getElementById("edit-mass").value = 0;
-		document.getElementById("edit-mass-unit").selectedIndex = 0;
+		editMass.value = 0;
+		editMassUnit.selectedIndex = 0;
 	}	
 	document.getElementById("edit-point").value = body.radius;
 	document.getElementById("edit-e").value = body.e;
-	
 	
 	document.getElementById("edit-tilt").value = (body.axialTilt * 180 / Math.PI).toFixed(2);
 	document.getElementById("edit-ma").value = body.argument * 360;
@@ -203,8 +202,8 @@ function populateParameters() {
 }
 
 function deleteBody() {
-	var index = document.getElementById("edit-select").selectedIndex;
-	if(index == -1) return;
+	var index = getEditedBody();
+	if(index == "") return;
 	delete planets[planetList[index]];
 	document.getElementById("edit-select").remove(index);
 	document.getElementById("edit-parent").remove(index);
@@ -222,39 +221,28 @@ function convertUnits(units, value, to) {
 }
 
 function updateParameters() {
-	var index = document.getElementById("edit-select").selectedIndex;
+	var index = getEditedBody();
 	var body = planets[planetList[index]];
-	keplerize(kepler);
 	body.name = document.getElementById("edit-name").value;
 	document.getElementById("edit-select").options[index].text = body.name;
 	document.getElementById("edit-parent").options[index].text = body.name;
 	document.getElementById("focus").options[index+1].text = body.name;
-	
-	var editA = document.getElementById("edit-a");
-	var editAUnit = document.getElementById("edit-a-unit");
+
 	body.orbitRadius = convertUnits(distanceUnits, editA.value.toString() + " " + body.orbitRadius.split(" ")[1], distances[editAUnit.selectedIndex]);
 	editA.value = parseFloat(body.orbitRadius);
 	
-	var editT = document.getElementById("edit-T");
-	var editTUnit = document.getElementById("edit-T-unit");
 	body.period = convertUnits(timeUnits, editT.value.toString() + " " + body.period.split(" ")[1], speeds[editTUnit.selectedIndex]);
 	editT.value = parseFloat(body.period);
 
 	if(!body.hasOwnProperty("rotationPeriod")) body.rotationPeriod = "0 s";
 	if(!body.hasOwnProperty("trueRadius")) body.trueRadius = "0 m";
 	if(!body.hasOwnProperty("mass")) body.mass = "0 kg";
-	var editRotation = document.getElementById("edit-rotation");
-	var editRotationUnit = document.getElementById("edit-rotation-unit");
 	body.rotationPeriod = convertUnits(timeUnits, editRotation.value.toString() + " " + body.rotationPeriod.split(" ")[1], speeds[editRotationUnit.selectedIndex]);
 	editRotation.value = parseFloat(body.rotationPeriod);
 
-	var editSize = document.getElementById("edit-size");
-	var editSizeUnit = document.getElementById("edit-size-unit");
 	body.trueRadius = convertUnits(distanceUnits, editSize.value.toString() + " " + body.trueRadius.split(" ")[1], distances[editSizeUnit.selectedIndex]);
 	editSize.value = parseFloat(body.trueRadius);	
 	
-	var editMass = document.getElementById("edit-mass");
-	var editMassUnit = document.getElementById("edit-mass-unit");
 	body.mass = convertUnits(massUnits, editMass.value.toString() + " " + body.mass.split(" ")[1], masses[editMassUnit.selectedIndex]);
 	editMass.value = parseFloat(body.mass);	
 	
@@ -267,14 +255,11 @@ function updateParameters() {
 	body.inc = document.getElementById("edit-inc").value * Math.PI / 180;
 	body.ape = document.getElementById("edit-ape").value * Math.PI / 180;
 
+	body.parent = "";
 	if(document.getElementById("edit-parent").selectedIndex != index) {
 		body.parent = planetList[document.getElementById("edit-parent").selectedIndex];
 	}
-	else {
-		body.parent = "";
-	}
-
-	planets[planetList[index]] = body;
+	keplerize(kepler);
 }
 
 function createBody() {
