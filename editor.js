@@ -247,8 +247,8 @@ function updateParameters() {
 	editMass.value = parseFloat(body.mass);	
 	
 	body.color = document.getElementById("edit-color").value;
-	body.radius = document.getElementById("edit-point").value;
-	body.e = document.getElementById("edit-e").value;
+	body.radius = parseInt(document.getElementById("edit-point").value);
+	body.e = parseFloat(document.getElementById("edit-e").value);
 	body.axialTilt = document.getElementById("edit-tilt").value * Math.PI/180;
 	body.argument = document.getElementById("edit-ma").value / 360
 	body.lan = document.getElementById("edit-lan").value * Math.PI / 180;
@@ -260,6 +260,24 @@ function updateParameters() {
 		body.parent = planetList[document.getElementById("edit-parent").selectedIndex];
 	}
 	keplerize(kepler);
+
+	var mass = parseMass(body.mass);
+	var radius = parseDistance(body.trueRadius);
+
+	if(radius == 0) {
+		document.getElementById("info-gravity").innerHTML = "N/A";
+		document.getElementById("info-density").innerHTML = "N/A";
+	}
+	else {
+		document.getElementById("info-gravity").innerHTML = (6.67e-11 * mass / (radius*radius) / 9.81).toFixed(3).toString() + " g";
+		document.getElementById("info-density").innerHTML = (mass / ((4/3) * Math.PI * radius * radius * radius) / 1000).toFixed(3).toString() + " g/cm<sup>3</sup>"; 
+	}
+
+	var r = parseFloat(body.orbitRadius);
+	var u = body.orbitRadius.split(" ")[1];
+	document.getElementById("info-periapsis").innerHTML = (r * (1-body.e)).toFixed(3).toString() + " " + u;
+	document.getElementById("info-apoapsis").innerHTML = (r * (1+body.e)).toFixed(3).toString() + " " + u;
+
 }
 
 function createBody() {

@@ -5,7 +5,11 @@ h1, h2, h3 {
 }
 
 body {
-	width: 95%;
+	position: absolute;
+	left: 2%;
+	right: 2%;
+	top: 0;
+	bottom: 0;
 	margin: auto;
 	font-family: 'Arial', sans-serif;
 	color: #dddddd;
@@ -17,6 +21,7 @@ p {
 }
 
 #viewer {
+	height: 100%;
 	display: inline-block;
 	width: 70%;
 	margin: 0;
@@ -27,12 +32,26 @@ p {
 	background-color: #080808;
 }
 
-.editor {
+#editor {
+	height: 100%;
 	display: inline-block;
 	padding-left: 2%;
 	width: 28%;
 	margin: 0;
 	float: left;
+}
+
+#header {
+	display: inline-block;
+	width: 100%;
+	height: 22%;
+}
+
+#parameters {
+	overflow: auto;
+	display: inline-block;
+	height: 75%;
+	background-color: #282828;
 }
 
 input[type=number] {
