@@ -120,6 +120,7 @@ function decValue(e) {
 
 document.getElementById("edit-select").addEventListener("change", populateParameters, false);
 document.getElementById("delete-body").addEventListener("click", deleteBody, false);
+document.getElementById("delete-all").addEventListener("click", deleteAll, false);
 
 document.getElementById("create-body").addEventListener("click", createBody, false);
 document.getElementById("create-orbit").addEventListener("click", addBody, false);
@@ -450,6 +451,12 @@ function loadFile() {
 	resetSystem();
   });
   reader.readAsText(fileList[0]);
+}
+
+function deleteAll() {
+	if(!confirm("Confirm deletion")) return;
+	planets = {};
+	resetSystem();
 }
 
 function saveFile() {

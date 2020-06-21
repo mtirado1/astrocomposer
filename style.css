@@ -54,6 +54,10 @@ p {
 	background-color: #282828;
 }
 
+#delete-all {
+	background-color: #cc5000;
+}
+
 input[type=number] {
 	height: 30px;
 	width: 25%;
@@ -121,10 +125,10 @@ button  {
 }
 
 .inc-button, .dec-button {
-	width: 5%;
+	width: 6%;
 	background-color: #209ab7;
 	font-family: monospace;
-	font-size: 18px;
+	font-size: 20px;
 }
 
 input[type=range] {
