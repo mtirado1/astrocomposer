@@ -129,6 +129,8 @@ document.getElementById("create-center").addEventListener("click", addBody, fals
 document.getElementById("load-file").addEventListener("change", loadFile, false);
 document.getElementById("save-file").addEventListener("click", saveFile, false);
 
+document.getElementById("focus-zoom").addEventListener("click", zoomToFit, false);
+
 for(k in planets) {
 	option = document.createElement("option");
 	option.text = planets[k].name;
@@ -281,7 +283,26 @@ function updateParameters() {
 
 }
 
+function zoomToFit() {
+	var p = getEditedBody();
+	document.getElementById("focus").selectedIndex = p+1;
+	var body = planets[planetList[p]];
+	if(!body.hasOwnProperty("trueRadius")) {
+		zoom = maxZoom;
+	}
+	else if(parseDistance(body.trueRadius) == 0) {
+		zoom = maxZoom;
+	}
+	else {
+		var toZoom = (c.height/4 / parseDistance(body.trueRadius))/(50/distanceUnits.AU);
+		if(toZoom > maxZoom) zoom = maxZoom;
+		else if(toZoom < minZoom) zoom = minZoom;
+		else zoom = toZoom;
+	}
+}
+
 function createBody() {
+	document.getElementById("editor-menu").style.display = "none";
 	document.getElementById("type-selector").style.display = "block";
 }
 
@@ -357,6 +378,7 @@ for(var t = 0; t < templates.length; t++) {
 }
 
 function addBody(e) {
+	document.getElementById("editor-menu").style.display = "block";
 	document.getElementById("type-selector").style.display = "none";
 	var selectedTemplate = templates[document.getElementById("template-select").selectedIndex]
 	var newKey = prompt("Object ID:", selectedTemplate.name);
