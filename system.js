@@ -94,29 +94,36 @@ var masses = Object.keys(massUnits);
 var timeSelectors = document.getElementsByClassName("time-unit");
 var distSelectors = document.getElementsByClassName("dist-unit");
 var massSelectors = document.getElementsByClassName("mass-unit");
-for(var j = 0; j < timeSelectors.length; j++) {
-	for(var i = 0; i < speeds.length; i++) {
-		option = document.createElement("option");
-		option.text = speeds[i];
-		timeSelectors[j].add(option);
-	}
-}
 
-for(var j = 0; j < distSelectors.length; j++) {
-	for(var i = 0; i < distances.length; i++) {
-		option = document.createElement("option");
-		option.text = distances[i];
-		distSelectors[j].add(option);
+function resetSelectors() {
+	for(var j = 0; j < timeSelectors.length; j++) {
+		timeSelectors[j].innerHTML = "";
+		for(var i = 0; i < speeds.length; i++) {
+			option = document.createElement("option");
+			option.text = speeds[i];
+			timeSelectors[j].add(option);
+		}
+	}
+	
+	for(var j = 0; j < distSelectors.length; j++) {
+		distSelectors[j].innerHTML = "";
+		for(var i = 0; i < distances.length; i++) {
+			option = document.createElement("option");
+			option.text = distances[i];
+			distSelectors[j].add(option);
+		}
+	}
+	
+	for(var j = 0; j < massSelectors.length; j++) {
+		massSelectors[j].innerHTML = "";
+		for(var i = 0; i < masses.length; i++) {
+			option = document.createElement("option");
+			option.text = masses[i];
+			massSelectors[j].add(option);
+		}
 	}
 }
-
-for(var j = 0; j < massSelectors.length; j++) {
-	for(var i = 0; i < masses.length; i++) {
-		option = document.createElement("option");
-		option.text = masses[i];
-		massSelectors[j].add(option);
-	}
-}
+resetSelectors();
 
 function orbit() {
 	var angleX = intY * Math.PI/180;
