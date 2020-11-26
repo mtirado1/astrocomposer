@@ -67,8 +67,9 @@ function doTouchDrag(evt) {
 
 function doZoom(evt) {
 	evt.preventDefault();
-	if(evt.deltaY > 0) zoom -= zoom / 50;
-	else zoom += zoom/50;
+	console.log(evt.deltaY);
+	if(evt.deltaY > 0) zoom -= zoom / 20;
+	else zoom += zoom / 20;
 	zoom = Math.min(Math.max(minZoom, zoom), maxZoom);
 }
 
@@ -258,7 +259,7 @@ function plotPlanet(context, body, origin, axis, angles, w, epoch, canvas) {
 		context.stroke();
 
 		// plot parallels and meridians
-		context.strokeStyle = "#ffffff";
+		context.strokeStyle = "rgba(255, 255, 255, 0.5)";
 		context.lineWidth = 1;
 		context.beginPath();
 		for(var p = -5; p <= 5; p++) {
