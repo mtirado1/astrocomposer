@@ -17,6 +17,7 @@ var origY = 180;
 var intX = 0;
 var intY = 180;
 var zoom = 1;
+var zoomVel = 0;
 var maxZoom = 50000;
 var minZoom = 0.1;
 var prevDist = 0;
@@ -67,10 +68,13 @@ function doTouchDrag(evt) {
 
 function doZoom(evt) {
 	evt.preventDefault();
-	console.log(evt.deltaY);
-	if(evt.deltaY > 0) zoom -= zoom / 20;
-	else zoom += zoom / 20;
-	zoom = Math.min(Math.max(minZoom, zoom), maxZoom);
+	const sign = evt.deltaY > 0 ? -1 : 1;
+	if(sign == zoomVel / Math.abs(zoomVel) || zoomVel == 0) {
+		zoomVel += sign * 0.2;
+	}
+	else {
+		zoomVel = 0;
+	}
 }
 
 const ctx = c.getContext('2d');
@@ -127,6 +131,11 @@ function resetSelectors() {
 resetSelectors();
 
 function orbit() {
+	zoom += zoom * zoomVel * 1/60;
+	zoomVel -= zoomVel/60;
+	if(Math.abs(zoomVel) <= 0.02) zoomVel = 0;
+	zoom = Math.min(Math.max(minZoom, zoom), maxZoom);
+
 	var angleX = intY * Math.PI/180;
 	var angleZ = intX * Math.PI/180;
 	var cameraAxis = "zx";
