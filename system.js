@@ -11,16 +11,17 @@ c.addEventListener("wheel", doZoom, false);
 
 document.getElementById("reset-time").addEventListener("click", function() {epoch = 0;}, false);
 
-var drag = false;
-var origX = 0;
-var origY = 180;
-var intX = 0;
-var intY = 180;
-var zoom = 1;
-var zoomVel = 0;
-var maxZoom = 50000;
-var minZoom = 0.1;
-var prevDist = 0;
+let drag = false;
+let origX = 0;
+let origY = 180;
+let intX = 0;
+let intY = 180;
+let zoom = 1;
+let zoomVel = 0;
+let maxZoom = 50000;
+let minZoom = 0.1;
+let prevDist = 0;
+let perspective = 1000;
 
 function enableDrag(evt) {
 	drag = true;
@@ -136,79 +137,88 @@ function orbit() {
 	if(Math.abs(zoomVel) <= 0.02) zoomVel = 0;
 	zoom = Math.min(Math.max(minZoom, zoom), maxZoom);
 
-	var angleX = intY * Math.PI/180;
-	var angleZ = intX * Math.PI/180;
-	var cameraAxis = "zx";
-	var cameraAngles = [angleZ, angleX];
-	var w = 50 * zoom / distanceUnits.AU;
-	var focusX = 0;
-	var focusY = 0;
-
-	// calculate all positions
-	for (k in planets) {
-		var coords = getOrbitPoint(planets[k], getAnomaly(planets[k], epoch), w);
-		coords = applyMatrix(generateMatrix("zxz" + cameraAxis, [planets[k].ape, planets[k].inc, planets[k].lan].concat(cameraAngles)), coords);
-		planets[k].coords = coords;
-		planets[k].reference = [0, 0, 0];
-		if(planets[k].hasOwnProperty("parent")) {
-			if(planets.hasOwnProperty(planets[k].parent))
-				for(var i = 0; i < 3; i++)
-					planets[k].reference[i] = planets[planets[k].parent].coords[i] + planets[planets[k].parent].reference[i];
-		}
-	}
-	
-	var focus = document.getElementById("focus").selectedIndex;	
+	const angleX = intY * Math.PI/180;
+	const angleZ = intX * Math.PI/180;
+	const cameraAxis = "zx";
+	const cameraAngles = [angleZ, angleX];
+	const w = 50 * zoom / distanceUnits.AU;
+	let focusPoint = [0, 0, 0];
 	ctx.setTransform(1,0,0,1,0,0);
 	ctx.clearRect(0, 0, c.width, c.height);
 	ctx.translate(c.width/2, c.height/2);
+
+	// calculate all positions
+	for (k in planets) {
+		const planet = planets[k];
+		const coords = getOrbitPoint(parseDistance(planet.orbitRadius) * w, planet.e, getAnomaly(planet, epoch));
+		planet.matrix = generateMatrix("zxz" + cameraAxis, [planet.ape, planet.inc, planet.lan].concat(cameraAngles));
+		planet.coords = applyMatrix(planet.matrix, coords);
+		planet.reference = [0, 0, 0];
+		if(planet.hasOwnProperty("parent") && planet.parent != "") {
+			planet.reference = addVectors(planets[planet.parent].coords, planets[planet.parent].reference);
+		}
+	}
+	
+	const focus = document.getElementById("focus").selectedIndex;	
 	if(focus != 0) {
-		focus--;
-		focusX -= planets[planetList[focus]].coords[0] + planets[planetList[focus]].reference[0];
-		focusY -= planets[planetList[focus]].coords[1] + planets[planetList[focus]].reference[1];
+		const planet = planets[planetList[focus-1]];
+		focusPoint = addVectors(planet.coords, planet.reference).map(c => c * -1);
 	}
 
-	var m = generateMatrix(cameraAxis, cameraAngles);
+	// repeat and apply perspective
+	for (k in planets) {
+		const planet = planets[k];
+		planet.reference = addVectors(planet.reference, focusPoint);
+		planet.scale = perspective / (perspective + planet.coords[2] + planet.reference[2]);
+	}
+
+	let m = generateMatrix(cameraAxis, cameraAngles);
 	if(document.getElementById("show-grid").checked) {
 		ctx.beginPath();
 		ctx.strokeStyle = "#303030";
 		var s = distanceUnits.AU;
 		for(var g = -10; g <= 10; g++) {
-			var from = applyMatrix(m, [g*w*s, -10*w*s, 0]);
-			var to   = applyMatrix(m, [g*w*s, 10*w*s, 0]);
-			ctx.moveTo(focusX + from[0],  focusY + from[1]);
-			ctx.lineTo(focusX + to[0], focusY + to[1]);
-			from = applyMatrix(m, [-10*w*s, g*w*s, 0]);
-			to   = applyMatrix(m, [10*w*s, g*w*s, 0]);
-			ctx.moveTo(focusX + from[0], focusY + from[1]);
-			ctx.lineTo(focusX + to[0], focusY + to[1]);
+			let from = perspectiveTransform(addVectors(focusPoint, applyMatrix(m, [g*w*s, -10*w*s, 0])), perspective);
+			let to   = perspectiveTransform(addVectors(focusPoint, applyMatrix(m, [g*w*s, 10*w*s, 0])), perspective);
+			ctx.moveTo(from[0], from[1]);
+			ctx.lineTo(to[0], to[1]);
+			from = perspectiveTransform(addVectors(focusPoint, applyMatrix(m, [-10*w*s, g*w*s, 0])), perspective);
+			to   = perspectiveTransform(addVectors(focusPoint, applyMatrix(m, [10*w*s,  g*w*s, 0])), perspective);
+			ctx.moveTo(from[0], from[1]);
+			ctx.lineTo(to[0], to[1]);
 		}
 		ctx.stroke();
 	}
 
 	if(document.getElementById("show-axis").checked) {
-		var colors = ["#f00", "#0f0", "#00f"];
+		const colors = ["#f00", "#0f0", "#00f"];
 		for(var i = 0; i < 3; i++) {
-			var vHat = [0, 0, 0];
-			vHat[i] = 100;
+			let vHat = [0, 0, 0];
+			vHat[i] += 0.5 * w * distanceUnits.AU;
 			vHat = applyMatrix(m, vHat);
-			ctx.beginPath();
-			ctx.strokeStyle = colors[i];
-			ctx.moveTo(focusX, focusY);
-			ctx.lineTo(focusX + vHat[0], focusY + vHat[1]);
-			ctx.stroke();
+			vHat = addVectors(vHat, focusPoint);
+			vHat = perspectiveTransform(vHat, perspective);
+			const center = perspectiveTransform(focusPoint, perspective);
+			if (vHat[2] > -perspective && center[2] > -perspective) {
+				ctx.beginPath();
+				ctx.strokeStyle = colors[i];
+				ctx.moveTo(center[0], center[1]);
+				ctx.lineTo(vHat[0], vHat[1]);
+				ctx.stroke();
+			}
 		}
 	}
 
 	ctx.font = '14px Monospace';
 	
 	sortedPlanets.sort((a,b) => {return planets[b].coords[2] + planets[b].reference[2] - planets[a].coords[2] - planets[a].reference[2]});
-	for(var i = 0; i < sortedPlanets.length; i++) {
-		var p = sortedPlanets[i];
-		plotPlanet(ctx, planets[p], [focusX + planets[p].reference[0], focusY + planets[p].reference[1]], cameraAxis, cameraAngles, w, epoch, c);	
+	for(i in sortedPlanets) {
+		const planet = planets[sortedPlanets[i]];
+		plotPlanet(ctx, planet, {axis: cameraAxis, angles: cameraAngles}, w, epoch);	
 	}
 
-	var selectedTimeUnit = speeds[document.getElementById("select-speed").selectedIndex]
-	var selectedSpeed = timeUnits[selectedTimeUnit];
+	const selectedTimeUnit = speeds[document.getElementById("select-speed").selectedIndex]
+	const selectedSpeed = timeUnits[selectedTimeUnit];
 	ctx.setTransform(1,0,0,1,0,0);
 	ctx.fillStyle = orbitColor;
 	ctx.fillText("Time: " + (epoch/selectedSpeed).toFixed(1) + " " + selectedTimeUnit, 5, c.height - 30);
@@ -220,61 +230,78 @@ function orbit() {
 
 orbit();
 
-function plotPlanet(context, body, origin, axis, angles, w, epoch, canvas) {
-	// orients the orbit
-	var mat = generateMatrix("zxz" + axis, [body.ape, body.inc, body.lan].concat(angles));
-	
-	var rotation = 0;
-	var axialTilt = 0;
-	if(body.hasOwnProperty("rotationPeriod")) rotation = epoch / parseTime(body.rotationPeriod) * 2 * Math.PI;
-	if(body.hasOwnProperty("axialTilt")) axialTilt = body.axialTilt;
-	var resolution = Math.round(w * parseDistance(body.orbitRadius));
+function plotPlanet(context, body, camera, w, epoch) {
+	const resolution = Math.round(w * parseDistance(body.orbitRadius) * body.scale);
 
+	const x = body.scale*(body.reference[0] + body.coords[0]); // canvas coordinates
+	const y = body.scale*(body.reference[1] + body.coords[1]);
+	const z = body.reference[2] + body.coords[2];
 	// plot orbit
 	if(resolution <= 5000 && document.getElementById("show-orbit").checked) {
-		context.beginPath();
 		context.lineWidth = 1;
-		context.strokeStyle = orbitColor;
-		var coords = applyMatrix(mat, getOrbitPoint(body, 0, w));
-		context.moveTo(origin[0] + coords[0], origin[1] + coords[1]);
-		for(var j = 1; j <= resolution; j++) {
-			coords = applyMatrix(mat, getOrbitPoint(body, 2 * Math.PI * j / resolution, w));
-			context.lineTo(origin[0] + coords[0], origin[1] + coords[1]);
+		context.strokeStyle = orbitColor + "80";
+		context.beginPath();
+		const r = parseDistance(body.orbitRadius) * w;
+		let jump = false;
+		for(var i = 0; i <= resolution; i++) {
+			let coords = applyMatrix(body.matrix, getOrbitPoint(r, body.e, 2 * Math.PI * i / resolution));
+			coords = perspectiveTransform(addVectors(coords, body.reference), perspective);
+			if(coords[2] > -perspective) {
+				if(jump) {
+					context.moveTo(coords[0], coords[1]);
+					jump = false;
+				}
+				context.lineTo(coords[0], coords[1]);
+			}
+			else jump = true;
 		}
 		context.stroke();
 	}
 
-	var x = origin[0] + body.coords[0]; // canvas coordinates
-	var y = origin[1] + body.coords[1];
-	context.fillStyle = body.color;
+	if(z <= -perspective) return; // Planet is behind camera
 	// plot planet
-	var k = 0;
-	if(body.hasOwnProperty("trueRadius")) k = parseDistance(body.trueRadius) * w;
+	context.fillStyle = body.color;
+	let radius = 0;
+	let rotation = 0;
+	let axialTilt = 0;
+	if(body.hasOwnProperty("trueRadius")) radius = parseDistance(body.trueRadius) * w * body.scale;
+	if(body.hasOwnProperty("rotationPeriod")) rotation = epoch / parseTime(body.rotationPeriod) * 2 * Math.PI;
+	if(body.hasOwnProperty("axialTilt")) axialTilt = body.axialTilt;
 
-	if(k > body.radius*3 + 1 && (Math.abs(x)-k <= canvas.width/2) && (Math.abs(y)-k <= canvas.height/2)) {
+	if(radius > body.radius + 1 && (Math.abs(x) - radius <= ctx.canvas.clientWidth/2) && (Math.abs(y) - radius <= ctx.canvas.clientHeight/2)) {
 		// orients the planet
-		var planetMatrix = generateMatrix("zx" + axis, [rotation, axialTilt + body.inc].concat(angles));
+		var planetMatrix = generateMatrix("zx" + camera.axis, [rotation, axialTilt + body.inc].concat(camera.angles));
 		context.beginPath();
-		context.arc(x, y, k, 0, 2 * Math.PI);
+		context.arc(x, y, radius, 0, 2 * Math.PI);
 		context.fill();
 
-		// plot north pole
+		// plot poles
 		context.strokeStyle = "#00ff00";
 		context.lineWidth = 2;
-		var pole = applyMatrix(planetMatrix, [0, 0, k]);
-		context.beginPath();
-		context.moveTo(x + pole[0], y + pole[1]);
-		context.lineTo(x + 1.5*pole[0], y + 1.5*pole[1]);
-		context.stroke();
-
+		const poles = [applyMatrix(planetMatrix, [0, 0, radius]), applyMatrix(planetMatrix, [0, 0, -radius])];
+		for (var p = 0; p < poles.length; p++) {
+			const pole = poles[p];
+			context.beginPath();
+			if(pole[2] < 0) {
+				context.moveTo(x + pole[0], y + pole[1]);
+				context.lineTo(x + 1.5*pole[0], y + 1.5*pole[1]);	
+			}
+			else if(1.5*Math.hypot(pole[0], pole[1]) > radius) {
+				const mag = Math.hypot(pole[0], pole[1]);
+				context.moveTo(x + radius * pole[0]/mag, y + radius * pole[1]/mag);
+				context.lineTo(x + 1.5*pole[0], y + 1.5*pole[1]);	
+			}
+			context.stroke();
+		}
+		
 		// plot parallels and meridians
 		context.strokeStyle = "rgba(255, 255, 255, 0.5)";
 		context.lineWidth = 1;
 		context.beginPath();
 		for(var p = -5; p <= 5; p++) {
-			var pRadius = k * Math.cos(p * Math.PI/12);
-			var pHeight = k * Math.sin(p * Math.PI/12)
-			var c = applyMatrix(planetMatrix, [pRadius, 0, pHeight]);
+			const pRadius = radius * Math.cos(p * Math.PI/12);
+			const pHeight = radius * Math.sin(p * Math.PI/12)
+			let c = applyMatrix(planetMatrix, [pRadius, 0, pHeight]);
 			context.moveTo(x + c[0], y + c[1]);
 			for(var i = 1; i <= 50; i++) {
 				c = applyMatrix(planetMatrix, [pRadius * Math.cos(i * 2 * Math.PI / 50), pRadius * Math.sin(i * 2 * Math.PI / 50), pHeight]);
@@ -285,10 +312,10 @@ function plotPlanet(context, body, origin, axis, angles, w, epoch, canvas) {
 		
 		for(var m = 0; m < 6; m++) {
 			var meridianMatrix = generateMatrix("z", [m * 2 * Math.PI / 12]);
-			var c = applyMatrix(planetMatrix, applyMatrix(meridianMatrix, [k, 0, 0]));
+			var c = applyMatrix(planetMatrix, applyMatrix(meridianMatrix, [radius, 0, 0]));
 			context.moveTo(x + c[0], y + c[1]);
 			for(var i = 1; i <= 50; i++) {
-				c = applyMatrix(planetMatrix, applyMatrix(meridianMatrix, [k * Math.cos(i * 2 * Math.PI / 50), 0, k * Math.sin(i * 2 * Math.PI / 50)]));
+				c = applyMatrix(planetMatrix, applyMatrix(meridianMatrix, [radius * Math.cos(i * 2 * Math.PI / 50), 0, radius * Math.sin(i * 2 * Math.PI / 50)]));
 				if(c[2] > 0) context.moveTo(x + c[0], y + c[1]);
 				else context.lineTo(x + c[0], y + c[1]);
 			}
@@ -305,18 +332,15 @@ function plotPlanet(context, body, origin, axis, angles, w, epoch, canvas) {
 		context.fillText(body.name, x, y - 40);
 		context.fillRect(x, y - 40, 1, 35);
 	}
-
 }
 
 // Plot a point of an orbit, angle is mean anomaly
-function getOrbitPoint(obj, angle, w) {
-	var r = parseDistance(obj.orbitRadius);
-	var vec = [
-		r * w * (Math.cos(angle) - obj.e),
-		r * w * (Math.sin(angle) * Math.sqrt(1 - obj.e * obj.e)),
+function getOrbitPoint(r, e, angle) {
+	return [
+		r * (Math.cos(angle) - e),
+		r * (Math.sin(angle) * Math.sqrt(1 - e * e)),
 		0
 	];
-	return vec;
 }
 
 function getAnomaly(obj, t) {
@@ -375,3 +399,21 @@ function applyMatrix(m, v) {
 	return ret;
 }
 
+function addVectors() {
+	let ret = [0, 0, 0];
+	for(var i = 0; i < arguments.length; i++) {
+		ret[0] += arguments[i][0];
+		ret[1] += arguments[i][1];
+		ret[2] += arguments[i][2];
+	}
+	return ret;
+}
+
+
+function perspectiveTransform(v, distance) {
+	let ret = [v[0], v[1], v[2]];
+	const scale = distance / (distance + v[2]);
+	ret[0] *= scale;
+	ret[1] *= scale;
+	return ret;
+}
