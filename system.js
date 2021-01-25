@@ -176,16 +176,14 @@ function orbit() {
 	if(document.getElementById("show-grid").checked) {
 		ctx.beginPath();
 		ctx.strokeStyle = "#303030";
-		var s = distanceUnits.AU;
+		const s = distanceUnits.AU;
 		for(var g = -10; g <= 10; g++) {
-			let from = perspectiveTransform(addVectors(focusPoint, applyMatrix(m, [g*w*s, -10*w*s, 0])), perspective);
-			let to   = perspectiveTransform(addVectors(focusPoint, applyMatrix(m, [g*w*s, 10*w*s, 0])), perspective);
-			ctx.moveTo(from[0], from[1]);
-			ctx.lineTo(to[0], to[1]);
-			from = perspectiveTransform(addVectors(focusPoint, applyMatrix(m, [-10*w*s, g*w*s, 0])), perspective);
-			to   = perspectiveTransform(addVectors(focusPoint, applyMatrix(m, [10*w*s,  g*w*s, 0])), perspective);
-			ctx.moveTo(from[0], from[1]);
-			ctx.lineTo(to[0], to[1]);
+			let from = addVectors(focusPoint, applyMatrix(m, [g*w*s, -10*w*s, 0]));
+			let to   = addVectors(focusPoint, applyMatrix(m, [g*w*s, 10*w*s, 0]));
+			perspectiveLine(ctx, from, to, perspective);
+			from = addVectors(focusPoint, applyMatrix(m, [-10*w*s, g*w*s, 0]));
+			to   = addVectors(focusPoint, applyMatrix(m, [10*w*s,  g*w*s, 0]));
+			perspectiveLine(ctx, from, to, perspective);
 		}
 		ctx.stroke();
 	}
@@ -197,15 +195,10 @@ function orbit() {
 			vHat[i] += 0.5 * w * distanceUnits.AU;
 			vHat = applyMatrix(m, vHat);
 			vHat = addVectors(vHat, focusPoint);
-			vHat = perspectiveTransform(vHat, perspective);
-			const center = perspectiveTransform(focusPoint, perspective);
-			if (vHat[2] > -perspective && center[2] > -perspective) {
-				ctx.beginPath();
-				ctx.strokeStyle = colors[i];
-				ctx.moveTo(center[0], center[1]);
-				ctx.lineTo(vHat[0], vHat[1]);
-				ctx.stroke();
-			}
+			ctx.beginPath();
+			ctx.strokeStyle = colors[i];
+			perspectiveLine(ctx, focusPoint, vHat, perspective);
+			ctx.stroke();
 		}
 	}
 
@@ -242,18 +235,16 @@ function plotPlanet(context, body, camera, w, epoch) {
 		context.strokeStyle = orbitColor + "80";
 		context.beginPath();
 		const r = parseDistance(body.orbitRadius) * w;
-		let jump = false;
-		for(var i = 0; i <= resolution; i++) {
-			let coords = applyMatrix(body.matrix, getOrbitPoint(r, body.e, 2 * Math.PI * i / resolution));
-			coords = perspectiveTransform(addVectors(coords, body.reference), perspective);
-			if(coords[2] > -perspective) {
-				if(jump) {
-					context.moveTo(coords[0], coords[1]);
-					jump = false;
-				}
-				context.lineTo(coords[0], coords[1]);
+		let prev = addVectors(applyMatrix(body.matrix, getOrbitPoint(r, body.e, 0)), body.reference);
+		for(var i = 1; i <= resolution; i++) {
+			let coords = addVectors(applyMatrix(body.matrix, getOrbitPoint(r, body.e, 2 * Math.PI * i / resolution)), body.reference);
+			if(prev[2] >= -perspective && coords[2] >= -perspective) {
+				const a = perspectiveTransform(prev, perspective);
+				const b = perspectiveTransform(coords, perspective);
+				context.moveTo(a[0], a[1]);
+				context.lineTo(b[0], b[1]);
 			}
-			else jump = true;
+			prev = coords;
 		}
 		context.stroke();
 	}
@@ -416,4 +407,33 @@ function perspectiveTransform(v, distance) {
 	ret[0] *= scale;
 	ret[1] *= scale;
 	return ret;
+}
+
+function perspectiveLine(context, a, b, perspective) {
+
+	// get slope
+	const dx = b[0] - a[0];
+	const dy = b[1] - a[1];
+	const dz = b[2] - a[2];
+	// line will never appear on screen
+	if(a[2] < -perspective && b[2] < -perspective) {
+		return;
+	}
+
+	if(a[2] < -perspective) {
+		const step = -perspective + 1 - a[2];
+		a[2] = -perspective + 1;
+		a[1] += step/dz * dy;
+		a[0] += step/dz * dx;
+	}
+	if(b[2] < -perspective) {
+		const step = -perspective + 1 - b[2];
+		b[2] = -perspective + 1;
+		b[1] += step/dz * dy;
+		b[0] += step/dz * dx;
+	}
+	a = perspectiveTransform(a, perspective);
+	b = perspectiveTransform(b, perspective);
+	context.moveTo(a[0], a[1]);
+	context.lineTo(b[0], b[1]);
 }
