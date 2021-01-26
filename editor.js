@@ -454,6 +454,7 @@ function loadFile() {
 	planets = loaded.planets;
 	timeUnits = loaded.timeUnits;
 	distanceUnits = loaded.distanceUnits;
+	massUnits = loaded.massUnits;
 	resetSystem();
   });
   reader.readAsText(fileList[0]);
@@ -469,8 +470,11 @@ function saveFile() {
 	var pack = {};
 	pack.distanceUnits = distanceUnits;
 	pack.timeUnits = timeUnits;
+	pack.massUnits = massUnits;
 	pack.planets = planets;
 	for (p in pack.planets) {
+		delete pack.planets[p].matrix;
+		delete pack.planets[p].scale;
 		delete pack.planets[p].coords;
 		delete pack.planets[p].reference;
 	}
