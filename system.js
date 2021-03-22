@@ -302,11 +302,12 @@ function plotPlanet(context, body, camera, w, epoch) {
 		}
 		
 		for(var m = 0; m < 6; m++) {
-			var meridianMatrix = generateMatrix("z", [m * 2 * Math.PI / 12]);
-			var c = applyMatrix(planetMatrix, applyMatrix(meridianMatrix, [radius, 0, 0]));
+			var meridianAngle = m * 2 * Math.PI / 12;
+			var c = applyMatrix(planetMatrix, [radius * Math.cos(meridianAngle), radius *Math.sin(meridianAngle), 0]);
 			context.moveTo(x + c[0], y + c[1]);
 			for(var i = 1; i <= 50; i++) {
-				c = applyMatrix(planetMatrix, applyMatrix(meridianMatrix, [radius * Math.cos(i * 2 * Math.PI / 50), 0, radius * Math.sin(i * 2 * Math.PI / 50)]));
+				const t = i * 2 * Math.PI / 50
+				c = applyMatrix(planetMatrix, [radius * Math.cos(t) * Math.cos(meridianAngle), radius * Math.cos(t) * Math.sin(meridianAngle), radius * Math.sin(t)]);
 				if(c[2] > 0) context.moveTo(x + c[0], y + c[1]);
 				else context.lineTo(x + c[0], y + c[1]);
 			}
