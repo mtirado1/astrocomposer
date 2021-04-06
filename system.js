@@ -84,6 +84,7 @@ var orbitColor = "#eeeeee";
 
 var option = document.createElement("option");
 option.text = "Origin";
+option.value = "origin";
 document.getElementById("focus").add(option);
 
 var sortedPlanets = Object.keys(planets);
@@ -91,12 +92,10 @@ var planetList = Object.keys(planets);
 for(k in planets) {
 	option = document.createElement("option");
 	option.text = planets[k].name;
+	option.value = k;
 	document.getElementById("focus").add(option);
 }
 
-var speeds = Object.keys(timeUnits);
-var distances = Object.keys(distanceUnits);
-var masses = Object.keys(massUnits);
 var timeSelectors = document.getElementsByClassName("time-unit");
 var distSelectors = document.getElementsByClassName("dist-unit");
 var massSelectors = document.getElementsByClassName("mass-unit");
@@ -104,27 +103,30 @@ var massSelectors = document.getElementsByClassName("mass-unit");
 function resetSelectors() {
 	for(var j = 0; j < timeSelectors.length; j++) {
 		timeSelectors[j].innerHTML = "";
-		for(var i = 0; i < speeds.length; i++) {
+		for(key in timeUnits) {
 			option = document.createElement("option");
-			option.text = speeds[i];
+			option.text = key;
+			option.value = key;
 			timeSelectors[j].add(option);
 		}
 	}
 	
 	for(var j = 0; j < distSelectors.length; j++) {
 		distSelectors[j].innerHTML = "";
-		for(var i = 0; i < distances.length; i++) {
+		for(key in distanceUnits) {
 			option = document.createElement("option");
-			option.text = distances[i];
+			option.text = key;
+			option.value = key;
 			distSelectors[j].add(option);
 		}
 	}
 	
 	for(var j = 0; j < massSelectors.length; j++) {
 		massSelectors[j].innerHTML = "";
-		for(var i = 0; i < masses.length; i++) {
+		for(key in massUnits) {
 			option = document.createElement("option");
-			option.text = masses[i];
+			option.text = key;
+			option.value = key;
 			massSelectors[j].add(option);
 		}
 	}
@@ -159,9 +161,9 @@ function orbit() {
 		}
 	}
 	
-	const focus = document.getElementById("focus").selectedIndex;	
-	if(focus != 0) {
-		const planet = planets[planetList[focus-1]];
+	const focus = document.getElementById("focus").value;	
+	if(focus !== "origin") {
+		const planet = planets[focus];
 		focusPoint = addVectors(planet.coords, planet.reference).map(c => c * -1);
 	}
 
@@ -210,7 +212,7 @@ function orbit() {
 		plotPlanet(ctx, planet, {axis: cameraAxis, angles: cameraAngles}, w, epoch);	
 	}
 
-	const selectedTimeUnit = speeds[document.getElementById("select-speed").selectedIndex]
+	const selectedTimeUnit = document.getElementById("select-speed").value
 	const selectedSpeed = timeUnits[selectedTimeUnit];
 	ctx.setTransform(1,0,0,1,0,0);
 	ctx.fillStyle = orbitColor;

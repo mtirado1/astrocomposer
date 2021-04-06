@@ -37,7 +37,7 @@ var editMass = document.getElementById("edit-mass");
 var editMassUnit = document.getElementById("edit-mass-unit");
 
 function getEditedBody() {
-	return editSelect.selectedIndex;
+	return editSelect.value;
 }
 
 function enableKepler(e) {
@@ -73,14 +73,14 @@ function keplerize(type) {
 	if (type == "distance") {
 		var period = parseTime(planets[p].period);
 		var newDistance = Math.cbrt((6.67e-11 * parentMass * period * period)/(4 * Math.PI * Math.PI));
-		planets[p].orbitRadius = convertUnits(distanceUnits, newDistance.toString() + " m", distances[editAUnit.selectedIndex]);
+		planets[p].orbitRadius = convertUnits(distanceUnits, newDistance.toString() + " m", editAUnit.value);
 		editA.disabled = true;
 		editA.value = planets[p].orbitRadius.split(" ")[0];
 	}
 	else if (type == "period") {
 		var distance = parseDistance(planets[p].orbitRadius);
 		var newPeriod = 2 * Math.PI * Math.sqrt( distance**3 / (parentMass * 6.67e-11));
-		planets[p].period = convertUnits(timeUnits, newPeriod.toString() + " s", speeds[editTUnit.selectedIndex]);
+		planets[p].period = convertUnits(timeUnits, newPeriod.toString() + " s", editTUnit.value);
 		editT.disabled = true;
 		editT.value = planets[p].period.split(" ")[0];
 	}
@@ -139,30 +139,32 @@ document.getElementById("focus-zoom").addEventListener("click", zoomToFit, false
 for(k in planets) {
 	option = document.createElement("option");
 	option.text = planets[k].name;
+	option.value = k;
 	editSelect.add(option);
 	option = document.createElement("option");
 	option.text = planets[k].name;
+	option.value = k;
 	editParent.add(option);
 
 }
 populateParameters();
 
 function populateParameters() {
-	var index = getEditedBody();
-	var body = planets[planetList[index]];
+	const index = getEditedBody();
+	let body = planets[index];
 
-	editParent.selectedIndex = index;
+	editParent.value = index;
 	if(body.parent != "") {
-		editParent.selectedIndex = planetList.indexOf(body.parent); 
+		editParent.value = body.parent; 
 	}
 	document.getElementById("edit-name").value = body.name; 
 	document.getElementById("edit-color").value = body.color;
 	editA.value = parseFloat(body.orbitRadius);
-	editAUnit.selectedIndex = distances.indexOf(body.orbitRadius.split(" ")[1]);
+	editAUnit.value = body.orbitRadius.split(" ")[1];
 	
 	if(body.hasOwnProperty("period")) {
 		editT.value = parseFloat(body.period);
-		editTUnit.selectedIndex = speeds.indexOf(body.period.split(" ")[1]);
+		editTUnit.value = body.period.split(" ")[1];
 	}
 	else {
 		editT.value = 1;
@@ -171,7 +173,7 @@ function populateParameters() {
 
 	if(body.hasOwnProperty("rotationPeriod")) {
 		editRotation.value = parseFloat(body.rotationPeriod);
-		editRotationUnit.selectedIndex = speeds.indexOf(body.rotationPeriod.split(" ")[1]);
+		editRotationUnit.value = body.rotationPeriod.split(" ")[1];
 	}
 	else {
 		editRotation.value = 1;
@@ -180,7 +182,7 @@ function populateParameters() {
 
 	if(body.hasOwnProperty("trueRadius")){
 		editSize.value = parseFloat(body.trueRadius);
-		editSizeUnit.selectedIndex = distances.indexOf(body.trueRadius.split(" ")[1]);
+		editSizeUnit.value = body.trueRadius.split(" ")[1];
 	}
 	else {
 		editSize.value = 0;
@@ -188,7 +190,7 @@ function populateParameters() {
 	}
 	
 	editMass.value = parseFloat(body.mass);
-	editMassUnit.selectedIndex = masses.indexOf(body.mass.split(" ")[1]);
+	editMassUnit.value = body.mass.split(" ")[1];
 	document.getElementById("edit-point").value = body.radius;
 	document.getElementById("edit-e").value = body.e;
 	
@@ -221,28 +223,28 @@ function convertUnits(units, value, to) {
 }
 
 function updateParameters() {
-	var index = getEditedBody();
-	var body = planets[planetList[index]];
+	const index = getEditedBody();
+	const body = planets[index];
 	body.name = document.getElementById("edit-name").value;
-	editSelect.options[index].text = body.name;
-	editParent.options[index].text = body.name;
-	document.getElementById("focus").options[index+1].text = body.name;
+	editSelect.options[planetList.indexOf(index)].text = body.name;
+	editParent.options[planetList.indexOf(index)].text = body.name;
+	document.getElementById("focus").options[planetList.indexOf(index) + 1].text = body.name;
 
-	body.orbitRadius = convertUnits(distanceUnits, editA.value.toString() + " " + body.orbitRadius.split(" ")[1], distances[editAUnit.selectedIndex]);
+	body.orbitRadius = convertUnits(distanceUnits, editA.value.toString() + " " + body.orbitRadius.split(" ")[1], editAUnit.value);
 	editA.value = parseFloat(body.orbitRadius);
 	
-	body.period = convertUnits(timeUnits, editT.value.toString() + " " + body.period.split(" ")[1], speeds[editTUnit.selectedIndex]);
+	body.period = convertUnits(timeUnits, editT.value.toString() + " " + body.period.split(" ")[1], editTUnit.value);
 	editT.value = parseFloat(body.period);
 
 	if(!body.hasOwnProperty("rotationPeriod")) body.rotationPeriod = "0 s";
 	if(!body.hasOwnProperty("trueRadius")) body.trueRadius = "0 m";
-	body.rotationPeriod = convertUnits(timeUnits, editRotation.value.toString() + " " + body.rotationPeriod.split(" ")[1], speeds[editRotationUnit.selectedIndex]);
+	body.rotationPeriod = convertUnits(timeUnits, editRotation.value.toString() + " " + body.rotationPeriod.split(" ")[1], editRotationUnit.value);
 	editRotation.value = parseFloat(body.rotationPeriod);
 
-	body.trueRadius = convertUnits(distanceUnits, editSize.value.toString() + " " + body.trueRadius.split(" ")[1], distances[editSizeUnit.selectedIndex]);
+	body.trueRadius = convertUnits(distanceUnits, editSize.value.toString() + " " + body.trueRadius.split(" ")[1], editSizeUnit.value);
 	editSize.value = parseFloat(body.trueRadius);	
 	
-	body.mass = convertUnits(massUnits, editMass.value.toString() + " " + body.mass.split(" ")[1], masses[editMassUnit.selectedIndex]);
+	body.mass = convertUnits(massUnits, editMass.value.toString() + " " + body.mass.split(" ")[1], editMassUnit.value);
 	editMass.value = parseFloat(body.mass);	
 	
 	body.color = document.getElementById("edit-color").value;
@@ -255,8 +257,8 @@ function updateParameters() {
 	body.ape = document.getElementById("edit-ape").value * Math.PI / 180;
 
 	body.parent = "";
-	if(document.getElementById("edit-parent").selectedIndex != index) {
-		body.parent = planetList[editParent.selectedIndex];
+	if(document.getElementById("edit-parent").value != index) {
+		body.parent = editParent.value;
 	}
 	keplerize(kepler);
 
@@ -280,8 +282,8 @@ function updateParameters() {
 }
 
 function zoomToFit() {
-	var p = getEditedBody();
-	document.getElementById("focus").selectedIndex = p+1;
+	const p = getEditedBody();
+	document.getElementById("focus").value = p;
 	var body = planets[planetList[p]];
 	if(!body.hasOwnProperty("trueRadius")) {
 		zoom = maxZoom;
@@ -392,9 +394,9 @@ function addBody(e) {
 	if(e.target.id == "create-center") {
 		planets[newKey].orbitRadius = "0 AU";
 	}
-	var focus = document.getElementById("focus").selectedIndex - 1;
-	if(focus >= 0) {
-		planets[newKey].parent = planetList[focus];
+	const focus = document.getElementById("focus").value;
+	if(focus !== "origin") {
+		planets[newKey].parent = focus;
 	}
 	else {
 		planets[newKey].parent = "";
@@ -423,6 +425,7 @@ function resetSystem() {
 	editParent.innerHTML = ""
 	var option = document.createElement("option");
 	option.text = "Origin";
+	option.value = "origin"
 	document.getElementById("focus").add(option);
 
 	sortedPlanets = Object.keys(planets);
@@ -430,18 +433,18 @@ function resetSystem() {
 	for(k in planets) {
 		option = document.createElement("option");
 		option.text = planets[k].name;
+		option.value = k;
 		document.getElementById("focus").add(option);
 		option = document.createElement("option");
 		option.text = planets[k].name;
+		option.value = k;
 		editSelect.add(option);
 		option = document.createElement("option");
 		option.text = planets[k].name;
+		option.value = k;
 		editParent.add(option);
 	}
 
-	speeds = Object.keys(timeUnits);
-	distances = Object.keys(distanceUnits);
-	masses = Object.keys(massUnits);
 	resetSelectors();
 	populateParameters();
 }

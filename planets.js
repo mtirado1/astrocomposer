@@ -37,7 +37,7 @@ var planets = {
 	},
 	mercury: {
 		name: 'Mercury',
-		parent: "",
+		parent: "sol",
 		orbitRadius: "0.387 AU",
 		radius: 1,
 		trueRadius: "2439.7 km",
@@ -54,7 +54,7 @@ var planets = {
 	},
 	venus: {
 		name: 'Venus',
-		parent: "",
+		parent: "sol",
 		orbitRadius: "0.723 AU",
 		radius: 1,
 		trueRadius: "6051.8 km",
@@ -71,7 +71,7 @@ var planets = {
 	},
 	earth: {
 		name: 'Earth',
-		parent: "",
+		parent: "sol",
 		orbitRadius: "1 AU",
 		radius: 1,
 		trueRadius: "6371 km",
@@ -106,7 +106,7 @@ var planets = {
 	},
 	mars: {
 		name: 'Mars',
-		parent: "",
+		parent: "sol",
 		orbitRadius: "1.523 AU",
 		radius: 1,
 		trueRadius: "3389.5 km",
@@ -151,7 +151,7 @@ var planets = {
 	},
 	jupiter: {
 		name: 'Jupiter',
-		parent: "",
+		parent: "sol",
 		orbitRadius: "5.204 AU",
 		radius: 3,
 		trueRadius: "69911 km",
@@ -171,8 +171,8 @@ var planets = {
 		color: "#ffcc00",
 		parent: "jupiter",
 		radius: 0.5,
-
-		mass: "0 kg",
+		trueRadius: "1821.6 km",
+		mass: "8.93e22 kg",
 		orbitRadius: "421700 km",
 		period: "1.769 d",
 		e: 0,
@@ -186,8 +186,8 @@ var planets = {
 		color: "#ffcc88",
 		parent: "jupiter",
 		radius: 0.5,
-
-		mass: "0 kg",
+		trueRadius: "1560.8 km",
+		mass: "4.8e22 kg",
 		orbitRadius: "670900 km",
 		period: "3.551 d",
 		e: 0,
@@ -201,8 +201,8 @@ var planets = {
 		color: "#cccccc",
 		parent: "jupiter",
 		radius: 0.5,
-
-		mass: "0 kg",
+		trueRadius: "2634.1 km",
+		mass: "1.48e23 kg",
 		orbitRadius: "1070.4e3 km",
 		period: "7.154 d",
 		e: 0,
@@ -217,8 +217,8 @@ var planets = {
 		color: "#ddaaaa",
 		parent: "jupiter",
 		radius: 0.5,
-
-		mass: "0 kg",
+		trueRadius: "2410.3 km",
+		mass: "1.08e23 kg",
 		orbitRadius: "1882.7e3 km",
 		period: "16.689 d",
 		e: 0,
@@ -229,7 +229,7 @@ var planets = {
 	},
 	saturn: {
 		name: 'Saturn',
-		parent: "",
+		parent: "sol",
 		orbitRadius: "9.5826 AU",
 		radius: 3,
 		trueRadius: "58232 km",
@@ -275,7 +275,7 @@ var planets = {
 
 	uranus: {
 		name: 'Uranus',
-		parent: "",
+		parent: "sol",
 		orbitRadius: "19.2184 AU",
 		radius: 2,
 		trueRadius: "25362 km",
@@ -295,8 +295,8 @@ var planets = {
 		color: "#cccccc",
 		parent: "uranus",
 		radius: 0.5,
-
-		mass: "0 kg",
+		trueRadius: "788.4 km",
+		mass: "3.4e21 kg",
 		orbitRadius: "435910 km",
 		period: "8.706 d",
 		e: 0.0011,
@@ -307,7 +307,7 @@ var planets = {
 	},
 	neptune: {
 		name: 'Neptune',
-		parent: "",
+		parent: "sol",
 		orbitRadius: "30.11 AU",
 		radius: 2,
 		trueRadius: "24622 km",
@@ -327,8 +327,8 @@ var planets = {
 		color: "#cccccc",
 		parent: "neptune",
 		radius: 0.5,
-
-		mass: "0 kg",
+		trueRadius: "1353.4 km",
+		mass: "2.139e22 kg",
 		orbitRadius: "354759 km",
 		period: "5.876 d",
 		e: 0,
@@ -339,7 +339,7 @@ var planets = {
 	},
 	plutosystem: {
 		name: 'Pluto',
-		parent: "",
+		parent: "sol",
 		orbitRadius: "39.482 AU",
 		radius: 0,
 		mass: "0 kg",
