@@ -1,6 +1,8 @@
 var c = document.getElementById("system-canvas");
-c.width = parseInt(getComputedStyle(document.getElementById("viewer")).getPropertyValue('width'));
-c.height = c.width/2;
+const svgWidth = parseInt(getComputedStyle(document.getElementById("viewer")).getPropertyValue('width'))
+c.setAttribute("width",svgWidth);
+c.setAttribute("height", svgWidth/2);
+c.setAttribute("viewBox", `${-svgWidth/2} ${-svgWidth/4} ${svgWidth} ${svgWidth/2}`);
 c.addEventListener("mousemove", doDrag, false);
 c.addEventListener("touchmove", doTouchDrag, false);
 c.addEventListener("mousedown", enableDrag, false);
@@ -78,7 +80,7 @@ function doZoom(evt) {
 	}
 }
 
-const ctx = c.getContext('2d');
+const ctx = c;
 var epoch = 0;
 var orbitColor = "#eeeeee";
 
@@ -145,9 +147,7 @@ function orbit() {
 	const cameraAngles = [angleZ, angleX];
 	const w = 50 * zoom / distanceUnits.AU;
 	let focusPoint = [0, 0, 0];
-	ctx.setTransform(1,0,0,1,0,0);
-	ctx.clearRect(0, 0, c.width, c.height);
-	ctx.translate(c.width/2, c.height/2);
+	ctx.innerHTML = "";
 
 	// calculate all positions
 	for (k in planets) {
@@ -176,18 +176,15 @@ function orbit() {
 
 	let m = generateMatrix(cameraAxis, cameraAngles);
 	if(document.getElementById("show-grid").checked) {
-		ctx.beginPath();
-		ctx.strokeStyle = "#303030";
 		const s = distanceUnits.AU;
 		for(var g = -10; g <= 10; g++) {
 			let from = addVectors(focusPoint, applyMatrix(m, [g*w*s, -10*w*s, 0]));
 			let to   = addVectors(focusPoint, applyMatrix(m, [g*w*s, 10*w*s, 0]));
-			perspectiveLine(ctx, from, to, perspective);
+			perspectiveLine(ctx, "#303030", from, to, perspective);
 			from = addVectors(focusPoint, applyMatrix(m, [-10*w*s, g*w*s, 0]));
 			to   = addVectors(focusPoint, applyMatrix(m, [10*w*s,  g*w*s, 0]));
-			perspectiveLine(ctx, from, to, perspective);
+			perspectiveLine(ctx, "#303030", from, to, perspective);
 		}
-		ctx.stroke();
 	}
 
 	if(document.getElementById("show-axis").checked) {
@@ -197,10 +194,7 @@ function orbit() {
 			vHat[i] += 0.5 * w * distanceUnits.AU;
 			vHat = applyMatrix(m, vHat);
 			vHat = addVectors(vHat, focusPoint);
-			ctx.beginPath();
-			ctx.strokeStyle = colors[i];
-			perspectiveLine(ctx, focusPoint, vHat, perspective);
-			ctx.stroke();
+			perspectiveLine(ctx, colors[i], focusPoint, vHat, perspective);
 		}
 	}
 
@@ -214,10 +208,8 @@ function orbit() {
 
 	const selectedTimeUnit = document.getElementById("select-speed").value
 	const selectedSpeed = timeUnits[selectedTimeUnit];
-	ctx.setTransform(1,0,0,1,0,0);
-	ctx.fillStyle = orbitColor;
-	ctx.fillText("Time: " + (epoch/selectedSpeed).toFixed(1) + " " + selectedTimeUnit, 5, c.height - 30);
-	ctx.fillText("Scale: 100px = " + (100/(w*distanceUnits.AU)).toFixed(3) + " AU", 5, c.height - 15);
+	svgText(ctx, `Time: ${(epoch/selectedSpeed).toFixed(1)} ${selectedTimeUnit}`, orbitColor, 5 - svgWidth/2, svgWidth/4 - 30);
+	svgText(ctx, "Scale: 100px = " + (100/(w*distanceUnits.AU)).toFixed(3) + " AU", orbitColor, 5 - svgWidth/2, svgWidth/4 - 15);
 	epoch += (1/60) * document.getElementById("speed").value / 20 * selectedSpeed;
 	document.getElementById("speed-indicator").innerHTML = "Speed: " + (document.getElementById("speed").value / 20).toFixed(2);
 	requestAnimationFrame(orbit);
@@ -233,22 +225,23 @@ function plotPlanet(context, body, camera, w, epoch) {
 	const z = body.reference[2] + body.coords[2];
 	// plot orbit
 	if(resolution <= 5000 && document.getElementById("show-orbit").checked) {
-		context.lineWidth = 1;
-		context.strokeStyle = orbitColor + "80";
-		context.beginPath();
+		const vres = 50; // orbit resolution
+		const orbit = svgElement("path");
+		setAttributes(orbit, {strokeWidth: 1, stroke: orbitColor + "80", fill: "none"});
+		let path = "";
 		const r = parseDistance(body.orbitRadius) * w;
 		let prev = addVectors(applyMatrix(body.matrix, getOrbitPoint(r, body.e, 0)), body.reference);
-		for(var i = 1; i <= resolution; i++) {
-			let coords = addVectors(applyMatrix(body.matrix, getOrbitPoint(r, body.e, 2 * Math.PI * i / resolution)), body.reference);
+		for(var i = 0; i <= vres; i++) {
+			let coords = addVectors(applyMatrix(body.matrix, getOrbitPoint(r, body.e, 2 * Math.PI * i / vres)), body.reference);
 			if(prev[2] >= -perspective && coords[2] >= -perspective) {
 				const a = perspectiveTransform(prev, perspective);
 				const b = perspectiveTransform(coords, perspective);
-				context.moveTo(a[0], a[1]);
-				context.lineTo(b[0], b[1]);
+				path += `M ${a[0].toFixed(1)} ${a[1].toFixed(1)} L ${b[0].toFixed(1)} ${b[1].toFixed(1)}`
 			}
 			prev = coords;
 		}
-		context.stroke();
+		context.appendChild(orbit);
+		orbit.setAttribute("d", path);
 	}
 
 	if(z <= -perspective) return; // Planet is behind camera
@@ -261,7 +254,8 @@ function plotPlanet(context, body, camera, w, epoch) {
 	if(body.hasOwnProperty("rotationPeriod")) rotation = epoch / parseTime(body.rotationPeriod) * 2 * Math.PI;
 	if(body.hasOwnProperty("axialTilt")) axialTilt = body.axialTilt;
 
-	if(radius > body.radius + 1 && (Math.abs(x) - radius <= ctx.canvas.clientWidth/2) && (Math.abs(y) - radius <= ctx.canvas.clientHeight/2)) {
+	// TODO detailed planet
+	if(false && radius > body.radius + 1 && (Math.abs(x) - radius <= ctx.canvas.clientWidth/2) && (Math.abs(y) - radius <= ctx.canvas.clientHeight/2)) {
 		// orients the planet
 		var planetMatrix = generateMatrix("zx" + camera.axis, [rotation, axialTilt + body.inc].concat(camera.angles));
 		context.beginPath();
@@ -317,14 +311,15 @@ function plotPlanet(context, body, camera, w, epoch) {
 		context.stroke();
 	}
 	else {
-		context.beginPath();
-		context.arc(x, y, body.radius * 3, 0, 2 * Math.PI);
-		context.fill();
+		fillCircle(context, x, y, body.radius * 3, body.color);
 	}
 	
 	if(document.getElementById("show-label").checked && resolution >= 10 && resolution <= 10000) {
-		context.fillText(body.name, x, y - 40);
-		context.fillRect(x, y - 40, 1, 35);
+		svgText(context, body.name, body.color, x, y - 40)
+		const pointer = svgElement("line");
+		setAttributes(pointer, {x1: x, y1: y-40, x2: x, y2: y-5,
+		stroke: body.color, strokeWidth: 1});
+		context.appendChild(pointer);
 	}
 }
 
@@ -404,40 +399,3 @@ function addVectors() {
 	return ret;
 }
 
-
-function perspectiveTransform(v, distance) {
-	let ret = [v[0], v[1], v[2]];
-	const scale = distance / (distance + v[2]);
-	ret[0] *= scale;
-	ret[1] *= scale;
-	return ret;
-}
-
-function perspectiveLine(context, a, b, perspective) {
-
-	// get slope
-	const dx = b[0] - a[0];
-	const dy = b[1] - a[1];
-	const dz = b[2] - a[2];
-	// line will never appear on screen
-	if(a[2] < -perspective && b[2] < -perspective) {
-		return;
-	}
-
-	if(a[2] < -perspective) {
-		const step = -perspective + 1 - a[2];
-		a[2] = -perspective + 1;
-		a[1] += step/dz * dy;
-		a[0] += step/dz * dx;
-	}
-	if(b[2] < -perspective) {
-		const step = -perspective + 1 - b[2];
-		b[2] = -perspective + 1;
-		b[1] += step/dz * dy;
-		b[0] += step/dz * dx;
-	}
-	a = perspectiveTransform(a, perspective);
-	b = perspectiveTransform(b, perspective);
-	context.moveTo(a[0], a[1]);
-	context.lineTo(b[0], b[1]);
-}
