@@ -46,7 +46,7 @@ function enableKepler(e) {
 	editA.disabled = false;
 	kepler = e.target.value;
 	if(e.target.value == "none") return;
-	var p = planetList[getEditedBody()];
+	const p = getEditedBody();
 	if(planets[p].parent == "") {
 		alert("Body has no parent. Cannot keplerize.");
 		document.getElementById("kepler-none").checked = true;
@@ -68,7 +68,7 @@ function enableKepler(e) {
 
 function keplerize(type) {
 	if (type == "none") return;
-	var p = planetList[getEditedBody()];
+	const p = getEditedBody();
 	var parentMass = parseMass(planets[planets[p].parent].mass);
 	if (type == "distance") {
 		var period = parseTime(planets[p].period);
@@ -151,6 +151,12 @@ populateParameters();
 
 function populateParameters() {
 	const index = getEditedBody();
+	if(index === "") {
+		for(var i = 0; i < parameters.length; i++) {
+			parameters[i].value = "";
+		}
+		return;
+	}
 	let body = planets[index];
 
 	editParent.value = index;
@@ -204,9 +210,10 @@ function populateParameters() {
 }
 
 function deleteBody() {
-	var index = getEditedBody();
+	const key = getEditedBody();
+	const index = planetList.indexOf(key);
 	if(index == "") return;
-	delete planets[planetList[index]];
+	delete planets[key];
 	editSelect.remove(index);
 	editParent.remove(index);
 	document.getElementById("focus").remove(index + 1);
@@ -284,7 +291,7 @@ function updateParameters() {
 function zoomToFit() {
 	const p = getEditedBody();
 	document.getElementById("focus").value = p;
-	var body = planets[planetList[p]];
+	var body = planets[p];
 	if(!body.hasOwnProperty("trueRadius")) {
 		zoom = maxZoom;
 	}
@@ -301,7 +308,7 @@ function zoomToFit() {
 
 function createBody() {
 	document.getElementById("editor-menu").style.display = "none";
-	document.getElementById("type-selector").style.display = "block";
+	document.getElementById("type-selector").style.display = "";
 }
 
 const templates = [
@@ -313,8 +320,9 @@ const templates = [
 		trueRadius: "695700 km",
 		mass: "1 sol",
 		rotationPeriod: "25.05 d",
+		period: "0 s",
 		axialTilt: 0.1265,
-		color: "#ffee33",
+		color: "#ffddaa",
 		inc: 0,
 		ape: 0,
 		e: 0,
@@ -379,7 +387,7 @@ for(var t = 0; t < templates.length; t++) {
 }
 
 function addBody(e) {
-	document.getElementById("editor-menu").style.display = "block";
+	document.getElementById("editor-menu").style.display = "";
 	document.getElementById("type-selector").style.display = "none";
 	var selectedTemplate = templates[document.getElementById("template-select").selectedIndex]
 	var newKey = prompt("Object ID:", selectedTemplate.name);
@@ -405,9 +413,11 @@ function addBody(e) {
 	planetList = Object.keys(planets);
 	option = document.createElement("option");
 	option.text = newKey;
+	option.value = newKey;
 	editSelect.add(option);
 	option = document.createElement("option");
 	option.text = newKey;
+	option.value = newKey;
 	editParent.add(option);
 	
 	option = document.createElement("option");

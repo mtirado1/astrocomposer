@@ -339,6 +339,7 @@ function getOrbitPoint(r, e, angle) {
 
 function getAnomaly(obj, t) {
 	if(!obj.hasOwnProperty("period")) return 0;
+	if(parseFloat(obj.period) === 0) return 0;
 	var M  = (obj.argument + t / parseTime(obj.period)) * 2 * Math.PI;
 	if (obj.e < 0.1) return M; // no need to calculate for near-circular orbits
 	var E = M;
