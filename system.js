@@ -1,5 +1,6 @@
 var c = document.getElementById("system-canvas");
 const svgWidth = parseInt(getComputedStyle(document.getElementById("viewer")).getPropertyValue('width'))
+const svgHeight = svgWidth/2;
 c.setAttribute("width",svgWidth);
 c.setAttribute("height", svgWidth/2);
 c.setAttribute("viewBox", `${-svgWidth/2} ${-svgWidth/4} ${svgWidth} ${svgWidth/2}`);
@@ -255,60 +256,53 @@ function plotPlanet(context, body, camera, w, epoch) {
 	if(body.hasOwnProperty("axialTilt")) axialTilt = body.axialTilt;
 
 	// TODO detailed planet
-	if(false && radius > body.radius + 1 && (Math.abs(x) - radius <= ctx.canvas.clientWidth/2) && (Math.abs(y) - radius <= ctx.canvas.clientHeight/2)) {
+	if(radius > body.radius + 1 && (Math.abs(x) - radius <= svgWidth/2) && (Math.abs(y) - radius <= svgHeight/2)) {
 		// orients the planet
 		var planetMatrix = generateMatrix("zx" + camera.axis, [rotation, axialTilt + body.inc].concat(camera.angles));
-		context.beginPath();
-		context.arc(x, y, radius, 0, 2 * Math.PI);
-		context.fill();
+		fillCircle(context, x, y, radius, body.color);
 
 		// plot poles
-		context.strokeStyle = "#00ff00";
-		context.lineWidth = 2;
 		const poles = [applyMatrix(planetMatrix, [0, 0, radius]), applyMatrix(planetMatrix, [0, 0, -radius])];
 		for (var p = 0; p < poles.length; p++) {
 			const pole = poles[p];
-			context.beginPath();
 			if(pole[2] < 0) {
-				context.moveTo(x + pole[0], y + pole[1]);
-				context.lineTo(x + 1.5*pole[0], y + 1.5*pole[1]);	
+				drawLine(context, x + pole[0], y + pole[1], x + 1.5*pole[0], y + 1.5*pole[1], {stroke: "#00ff00", "stroke-width": 2});
 			}
 			else if(1.5*Math.hypot(pole[0], pole[1]) > radius) {
 				const mag = Math.hypot(pole[0], pole[1]);
-				context.moveTo(x + radius * pole[0]/mag, y + radius * pole[1]/mag);
-				context.lineTo(x + 1.5*pole[0], y + 1.5*pole[1]);	
+				drawLine(context, x + radius * pole[0]/mag, y + radius * pole[1]/mag, x + 1.5*pole[0], y + 1.5*pole[1], {stroke: "#00ff00", "stroke-width": 2});	
 			}
-			context.stroke();
 		}
 		
 		// plot parallels and meridians
-		context.strokeStyle = "rgba(255, 255, 255, 0.5)";
-		context.lineWidth = 1;
-		context.beginPath();
+		const pathProperties = {"stroke-width": 1, "fill": "none", "stroke": "rgba(255, 255, 255, 0.5)"};
+		let path = "";
 		for(var p = -5; p <= 5; p++) {
 			const pRadius = radius * Math.cos(p * Math.PI/12);
 			const pHeight = radius * Math.sin(p * Math.PI/12)
 			let c = applyMatrix(planetMatrix, [pRadius, 0, pHeight]);
-			context.moveTo(x + c[0], y + c[1]);
+			path += `M ${x + c[0]} ${y + c[1]}`
 			for(var i = 1; i <= 50; i++) {
 				c = applyMatrix(planetMatrix, [pRadius * Math.cos(i * 2 * Math.PI / 50), pRadius * Math.sin(i * 2 * Math.PI / 50), pHeight]);
-				if(c[2] > 0) context.moveTo(x + c[0], y + c[1]);
-				else context.lineTo(x + c[0], y + c[1]);
+				if(c[2] > 0) path += `M ${x + c[0]} ${y + c[1]}`;
+				else path += `L ${x + c[0]}  ${y + c[1]}`;
 			}
 		}
+		drawPath(context, path, pathProperties);
 		
+		path = ""
 		for(var m = 0; m < 6; m++) {
 			var meridianAngle = m * 2 * Math.PI / 12;
 			var c = applyMatrix(planetMatrix, [radius * Math.cos(meridianAngle), radius *Math.sin(meridianAngle), 0]);
-			context.moveTo(x + c[0], y + c[1]);
+			path += `M ${x + c[0]} ${y + c[1]}`
 			for(var i = 1; i <= 50; i++) {
 				const t = i * 2 * Math.PI / 50
 				c = applyMatrix(planetMatrix, [radius * Math.cos(t) * Math.cos(meridianAngle), radius * Math.cos(t) * Math.sin(meridianAngle), radius * Math.sin(t)]);
-				if(c[2] > 0) context.moveTo(x + c[0], y + c[1]);
-				else context.lineTo(x + c[0], y + c[1]);
+				if(c[2] > 0) path += `M ${x + c[0]} ${y + c[1]}`;
+				else path += `L ${x + c[0]}  ${y + c[1]}`;
 			}
 		}
-		context.stroke();
+		drawPath(context, path, pathProperties);
 	}
 	else {
 		fillCircle(context, x, y, body.radius * 3, body.color);

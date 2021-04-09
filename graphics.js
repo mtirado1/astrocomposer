@@ -45,6 +45,20 @@ function svgText(svg, text, color, x, y) {
 	svg.appendChild(textElement);
 }
 
+function drawLine(svg, x1, y1, x2, y2, attributes) {
+	const line = svgElement("line");
+	setAttributes(line, {x1: x1, y1: y1, x2: x2, y2: y2})
+	setAttributes(line, attributes);
+	svg.appendChild(line);
+}
+
+function drawPath(svg, path, attributes) {
+	attributes.d = path;
+	const p = svgElement("path");
+	setAttributes(p, attributes);
+	svg.appendChild(p);
+}
+
 function perspectiveLine(svg, color, a, b, perspective) {
 	// get slope
 	const dx = b[0] - a[0];
